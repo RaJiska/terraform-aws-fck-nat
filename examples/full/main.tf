@@ -5,7 +5,7 @@ locals {
 
 data "aws_region" "current" {}
 
-module "nat_instance" {
+module "fck-nat" {
   source = "../"
 
   name               = local.name

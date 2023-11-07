@@ -74,6 +74,14 @@ resource "aws_instance" "main" {
 
   launch_template {
     id = aws_launch_template.main.id
-    #version = "$Latest"
+    version = "$Latest"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      source_dest_check,
+      user_data,
+      tags
+    ]
   }
 }

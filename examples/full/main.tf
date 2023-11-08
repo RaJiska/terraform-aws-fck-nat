@@ -6,7 +6,7 @@ locals {
 data "aws_region" "current" {}
 
 module "fck-nat" {
-  source = "../"
+  source = "../../"
 
   name               = local.name
   vpc_id             = aws_vpc.main.id

@@ -60,3 +60,9 @@ variable "ebs_root_volume_size" {
   type        = number
   default     = 2
 }
+
+variable "eip_allocation_id" {
+  description = "EIP allocation ID to use for the NAT instance. Automatically assign a public IP if none is provided"
+  type        = string
+  default     = null
+}

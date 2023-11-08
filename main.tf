@@ -55,4 +55,3 @@ resource "aws_route" "main" {
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = aws_network_interface.main.id
 }
-  

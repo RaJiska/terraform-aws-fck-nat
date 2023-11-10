@@ -66,7 +66,7 @@ resource "aws_launch_template" "main" {
 
   user_data = base64encode(templatefile("${path.module}/templates/user_data.sh", {
     TERRAFORM_ENI_ID = aws_network_interface.main.id
-    TERRAFORM_EIP_ID = var.eip_allocation_id != null ? var.eip_allocation_id : ""
+    TERRAFORM_EIP_ID = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
   }))
 }
 
@@ -74,7 +74,7 @@ resource "aws_instance" "main" {
   count = var.ha_mode ? 0 : 1
 
   launch_template {
-    id = aws_launch_template.main.id
+    id      = aws_launch_template.main.id
     version = "$Latest"
   }
 

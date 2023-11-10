@@ -5,7 +5,7 @@ resource "aws_iam_instance_profile" "main" {
 
 data "aws_iam_policy_document" "main" {
   statement {
-    sid = "ManageNetworkInterface"
+    sid    = "ManageNetworkInterface"
     effect = "Allow"
     actions = [
       "ec2:AttachNetworkInterface",
@@ -15,33 +15,33 @@ data "aws_iam_policy_document" "main" {
       "*",
     ]
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "ec2:ResourceTag/Name"
-      values = [var.name]
+      values   = [var.name]
     }
   }
 
   dynamic "statement" {
-    for_each = var.eip_allocation_id != null ? ["x"] : []
+    for_each = length(var.eip_allocation_ids) != 0 ? ["x"] : []
 
     content {
-      sid = "ManageEIPAllocation"
+      sid    = "ManageEIPAllocation"
       effect = "Allow"
       actions = [
         "ec2:AssociateAddress",
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:elastic-ip/${var.eip_allocation_id}",
+        "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:elastic-ip/${var.eip_allocation_ids[0]}",
       ]
     }
   }
 
   dynamic "statement" {
-    for_each = var.eip_allocation_id != null ? ["x"] : []
+    for_each = length(var.eip_allocation_ids) != 0 ? ["x"] : []
 
     content {
-      sid = "ManageEIPNetworkInterface"
+      sid    = "ManageEIPNetworkInterface"
       effect = "Allow"
       actions = [
         "ec2:AssociateAddress",
@@ -51,9 +51,9 @@ data "aws_iam_policy_document" "main" {
         "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:network-interface/*"
       ]
       condition {
-        test = "StringEquals"
+        test     = "StringEquals"
         variable = "ec2:ResourceTag/Name"
-        values = [var.name]
+        values   = [var.name]
       }
     }
   }
@@ -77,7 +77,7 @@ resource "aws_iam_role" "main" {
   })
 
   inline_policy {
-    name = "Main"
+    name   = "Main"
     policy = data.aws_iam_policy_document.main.json
   }
 }

@@ -31,6 +31,7 @@ module "fck-nat" {
 
 | Name | Version |
 |------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0 |
 
 ## Providers
@@ -55,6 +56,7 @@ No modules.
 | [aws_network_interface.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
 | [aws_route.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) | resource |
 | [aws_security_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_ssm_parameter.cloudwatch_agent_config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_ami.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -66,6 +68,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | AMI to use for the NAT instance. Uses fck-nat latest AMI in the region if none provided | `string` | `null` | no |
+| <a name="input_cloudwatch_agent_configuration"></a> [cloudwatch\_agent\_configuration](#input\_cloudwatch\_agent\_configuration) | CloudWatch configuration for the NAT instance | <pre>object({<br>    namespace           = optional(string, "fck-nat"),<br>    collection_interval = optional(number, 60),<br>    endpoint_override   = optional(string, "")<br>  })</pre> | <pre>{<br>  "collection_interval": 60,<br>  "endpoint_override": "",<br>  "namespace": "fck-nat"<br>}</pre> | no |
 | <a name="input_ebs_root_volume_size"></a> [ebs\_root\_volume\_size](#input\_ebs\_root\_volume\_size) | Size of the EBS root volume in GB | `number` | `2` | no |
 | <a name="input_eip_allocation_ids"></a> [eip\_allocation\_ids](#input\_eip\_allocation\_ids) | EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation. | `list(string)` | `[]` | no |
 | <a name="input_encryption"></a> [encryption](#input\_encryption) | Whether or not to encrypt the EBS volume | `bool` | `true` | no |
@@ -77,6 +80,7 @@ No modules.
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID to deploy the NAT instance into | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources created within the module | `map(string)` | `{}` | no |
 | <a name="input_update_route_table"></a> [update\_route\_table](#input\_update\_route\_table) | Whether or not to update the route table with the NAT instance | `bool` | `false` | no |
+| <a name="input_use_cloudwatch_agent"></a> [use\_cloudwatch\_agent](#input\_use\_cloudwatch\_agent) | Whether or not to enable CloudWatch agent for the NAT instance | `bool` | `false` | no |
 | <a name="input_use_spot_instances"></a> [use\_spot\_instances](#input\_use\_spot\_instances) | Whether or not to use spot instances for running the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |
 
@@ -86,6 +90,7 @@ No modules.
 |------|-------------|
 | <a name="output_ami_id"></a> [ami\_id](#output\_ami\_id) | AMI to use for the NAT instance. Uses fck-nat latest arm64 AMI in the region if none provided |
 | <a name="output_autoscaling_group_arn"></a> [autoscaling\_group\_arn](#output\_autoscaling\_group\_arn) | The ARN of the autoscaling group if running in HA mode |
+| <a name="output_cw_agent_config_ssm_parameter_arn"></a> [cw\_agent\_config\_ssm\_parameter\_arn](#output\_cw\_agent\_config\_ssm\_parameter\_arn) | The ARN of the SSM parameter containing the Cloudwatch agent config |
 | <a name="output_encryption"></a> [encryption](#output\_encryption) | Whether or not fck-nat instance EBS volumes are encrypted |
 | <a name="output_eni_arn"></a> [eni\_arn](#output\_eni\_arn) | The ARN of the static ENI used by the fck-nat instance |
 | <a name="output_eni_id"></a> [eni\_id](#output\_eni\_id) | The ID of the static ENI used by the fck-nat instance |

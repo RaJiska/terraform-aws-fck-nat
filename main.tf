@@ -55,3 +55,16 @@ resource "aws_route" "main" {
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = aws_network_interface.main.id
 }
+
+resource "aws_ssm_parameter" "cloudwatch_agent_config" {
+  count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn != null ? 1 : 0
+
+  name   = "${var.name}-cloudwatch-agent-config"
+  key_id = var.kms_key_id
+  type   = "String"
+  value  = templatefile("${path.module}/templates/cwagent.json", {
+    METRICS_COLLECTION_INTERVAL = var.cloudwatch_agent_configuration.collection_interval,
+    METRICS_NAMESPACE           = var.cloudwatch_agent_configuration.namespace
+    METRICS_ENDPOINT_OVERRIDE   = var.cloudwatch_agent_configuration.endpoint_override
+  })
+}

@@ -59,6 +59,21 @@ data "aws_iam_policy_document" "main" {
       }
     }
   }
+
+  dynamic "statement" {
+    for_each = var.use_cloudwatch_agent ? ["x"] : []
+
+    content {
+      sid    = "CWAgentSSMParameter"
+      effect = "Allow"
+      actions = [
+        "ssm:GetParameter"
+      ]
+      resources = [
+        var.cloudwatch_agent_configuration_param_arn != null ? var.cloudwatch_agent_configuration_param_arn : aws_ssm_parameter.cloudwatch_agent_config[0].arn
+      ]
+    }
+  }
 }
 
 resource "aws_iam_role" "main" {

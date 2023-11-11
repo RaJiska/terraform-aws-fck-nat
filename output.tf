@@ -77,3 +77,8 @@ output "autoscaling_group_arn" {
   description = "The ARN of the autoscaling group if running in HA mode"
   value       = var.ha_mode ? aws_autoscaling_group.main[0].arn : null
 }
+
+output "cw_agent_config_ssm_parameter_arn" {
+  description = "The ARN of the SSM parameter containing the Cloudwatch agent config"
+  value       = var.use_cloudwatch_agent ? aws_ssm_parameter.cloudwatch_agent_config[0].arn : null
+}

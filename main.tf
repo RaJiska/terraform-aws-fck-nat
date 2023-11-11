@@ -62,7 +62,7 @@ resource "aws_ssm_parameter" "cloudwatch_agent_config" {
   name   = "${var.name}-cloudwatch-agent-config"
   key_id = var.kms_key_id
   type   = "String"
-  value  = templatefile("${path.module}/templates/cwagent.json", {
+  value = templatefile("${path.module}/templates/cwagent.json", {
     METRICS_COLLECTION_INTERVAL = var.cloudwatch_agent_configuration.collection_interval,
     METRICS_NAMESPACE           = var.cloudwatch_agent_configuration.namespace
     METRICS_ENDPOINT_OVERRIDE   = var.cloudwatch_agent_configuration.endpoint_override

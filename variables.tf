@@ -81,12 +81,12 @@ variable "use_cloudwatch_agent" {
 
 variable "cloudwatch_agent_configuration" {
   description = "CloudWatch configuration for the NAT instance"
-  type        = object({
+  type = object({
     namespace           = optional(string, "fck-nat"),
     collection_interval = optional(number, 60),
     endpoint_override   = optional(string, "")
   })
-  default     = {
+  default = {
     namespace           = "fck-nat"
     collection_interval = 60
     endpoint_override   = ""

@@ -1,38 +1,30 @@
 # Terraform fck-nat
 
+## Introduction
+
 A Terraform module for deploying NAT Instances using [fck-nat](https://github.com/AndrewGuenther/fck-nat). The (f)easible (c)ost (k)onfigurable NAT!
+The following is a list of features available with this module:
+- High-availability mode achieved through a floating internal ENI automatically attached to instances being started by
+an ASG
+- Optional consistent static IP via EIP re-attachment to the internet facing ENI
+- Cloudwatch metrics reported similar to those available with the managed NAT Gateway
 
-* Overpaying for AWS Managed NAT Gateways? fck-nat.
-* Want to use NAT instances and stay up-to-date with the latest security patches? fck-nat.
-* Want to reuse your Bastion hosts as a NAT? fck-nat.
+## Example
 
-fck-nat offers a ready-to-use ARM and x86 based AMIs built on Amazon Linux 2 which can support up to 5Gbps NAT traffic
-on a t4g.nano instance. How does that compare to a Managed NAT Gateway?
+```hcl
+module "fck-nat" {
+  source = "RaJiska/fck-nat/aws"
 
-Hourly rates:
-* Managed NAT Gateway hourly: $0.045
-* t4g.nano hourly: $0.0042
-
-Per GB rates:
-* Managed NAT Gateway per GB: $0.045
-* fck-nat per GB: $0.00
-
-Sitting idle, fck-nat costs 10% of a Managed NAT Gateway. In practice, the savings are even greater.
-
-*"But what about AWS' NAT Instance AMI?"*
-
-The official AWS supported NAT Instance AMI hasn't been updates since 2018, is still running Amazon Linux 1 which is
-now EOL, and has no ARM support, meaning it can't be deployed on EC2's most cost effective instance types. fck-nat.
-
-*"When would I want to use a Managed NAT Gateway instead of fck-nat?"*
-
-AWS limits outgoing internet bandwidth on EC2 instances to 5Gbps. This means that the highest bandwidth that fck-nat
-can support is 5Gbps. This is enough to cover a very broad set of use cases, but if you need additional bandwidth,
-you should use Managed NAT Gateway. If AWS were to lift the limit on internet egress bandwidth from EC2, you could
-cost-effectively operate fck-nat at speeds up to 25Gbps, but you wouldn't need Managed NAT Gateway then would you?
-fck-nat.
-
-Read more about EC2 bandwidth limits here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html
+  name                 = "my-fck-nat"
+  vpc_id               = "vpc-abc1234"
+  subnet_id            = "subnet-abc1234"
+  update_route_table   = true
+  route_table_id       = "rtb-abc1234"
+  ha_mode              = true
+  eip_allocation_ids   = ["eipalloc-abc1234"]
+  use_cloudwatch_agent = true
+}
+```
 
 ## Requirements
 

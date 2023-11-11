@@ -82,6 +82,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
 | <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | Route table to update. Only valid if update\_route\_table is true | `string` | `null` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID to deploy the NAT instance into | `string` | n/a | yes |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources created within the module | `map(string)` | `{}` | no |
 | <a name="input_update_route_table"></a> [update\_route\_table](#input\_update\_route\_table) | Whether or not to update the route table with the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |
 

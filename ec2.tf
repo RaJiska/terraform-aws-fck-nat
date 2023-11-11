@@ -58,9 +58,9 @@ resource "aws_launch_template" "main" {
     content {
       resource_type = tag_specifications.value
 
-      tags = {
+      tags = merge(var.tags, {
         Name = var.name
-      }
+      })
     }
   }
 
@@ -68,6 +68,8 @@ resource "aws_launch_template" "main" {
     TERRAFORM_ENI_ID = aws_network_interface.main.id
     TERRAFORM_EIP_ID = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
   }))
+
+  tags = var.tags
 }
 
 resource "aws_instance" "main" {
@@ -77,6 +79,8 @@ resource "aws_instance" "main" {
     id      = aws_launch_template.main.id
     version = "$Latest"
   }
+
+  tags = var.tags
 
   lifecycle {
     ignore_changes = [

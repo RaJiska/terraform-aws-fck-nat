@@ -66,3 +66,9 @@ variable "eip_allocation_ids" {
   type        = list(string)
   default     = []
 }
+
+variable "tags" {
+  description = "Tags to apply to resources created within the module"
+  type        = map(string)
+  default     = {}
+}

@@ -1,6 +1,8 @@
 resource "aws_iam_instance_profile" "main" {
   name = var.name
   role = aws_iam_role.main.name
+
+  tags = var.tags
 }
 
 data "aws_iam_policy_document" "main" {
@@ -80,4 +82,6 @@ resource "aws_iam_role" "main" {
     name   = "Main"
     policy = data.aws_iam_policy_document.main.json
   }
+
+  tags = var.tags
 }

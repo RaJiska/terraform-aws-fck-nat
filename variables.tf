@@ -67,6 +67,12 @@ variable "eip_allocation_ids" {
   default     = []
 }
 
+variable "use_spot_instances" {
+  description = "Whether or not to use spot instances for running the NAT instance"
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "Tags to apply to resources created within the module"
   type        = map(string)

@@ -8,6 +8,7 @@ The following is a list of features available with this module:
 an ASG
 - Optional consistent static IP via EIP re-attachment to the internet facing ENI
 - Cloudwatch metrics reported similar to those available with the managed NAT Gateway
+- Use of spot instances instead of on-demand for reduced costs
 
 ## Example
 
@@ -20,9 +21,9 @@ module "fck-nat" {
   subnet_id            = "subnet-abc1234"
   update_route_table   = true
   route_table_id       = "rtb-abc1234"
-  ha_mode              = true
-  eip_allocation_ids   = ["eipalloc-abc1234"]
-  use_cloudwatch_agent = true
+  # ha_mode              = true                 # Enables high-availability mode
+  # eip_allocation_ids   = ["eipalloc-abc1234"] # Allocation ID of an existing EIP
+  # use_cloudwatch_agent = true                 # Enables Cloudwatch agent and have metrics reported
 }
 ```
 
@@ -76,6 +77,7 @@ No modules.
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID to deploy the NAT instance into | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources created within the module | `map(string)` | `{}` | no |
 | <a name="input_update_route_table"></a> [update\_route\_table](#input\_update\_route\_table) | Whether or not to update the route table with the NAT instance | `bool` | `false` | no |
+| <a name="input_use_spot_instances"></a> [use\_spot\_instances](#input\_use\_spot\_instances) | Whether or not to use spot instances for running the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |
 
 ## Outputs

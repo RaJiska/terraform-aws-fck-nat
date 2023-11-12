@@ -8,6 +8,7 @@ The following is a list of features available with this module:
 an ASG
 - Optional consistent static IP via EIP re-attachment to the internet facing ENI
 - Cloudwatch metrics reported similar to those available with the managed NAT Gateway
+- Use of spot instances instead of on-demand for reduced costs
 
 ## Example
 
@@ -20,8 +21,8 @@ module "fck-nat" {
   subnet_id            = "subnet-abc1234"
   update_route_table   = true
   route_table_id       = "rtb-abc1234"
-  ha_mode              = true
-  eip_allocation_ids   = ["eipalloc-abc1234"]
-  use_cloudwatch_agent = true
+  # ha_mode              = true                 # Enables high-availability mode
+  # eip_allocation_ids   = ["eipalloc-abc1234"] # Allocation ID of an existing EIP
+  # use_cloudwatch_agent = true                 # Enables Cloudwatch agent and have metrics reported
 }
 ```

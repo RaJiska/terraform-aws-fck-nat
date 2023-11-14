@@ -73,6 +73,32 @@ variable "use_spot_instances" {
   default     = false
 }
 
+variable "use_cloudwatch_agent" {
+  description = "Whether or not to enable CloudWatch agent for the NAT instance"
+  type        = bool
+  default     = false
+}
+
+variable "cloudwatch_agent_configuration" {
+  description = "CloudWatch configuration for the NAT instance"
+  type = object({
+    namespace           = optional(string, "fck-nat"),
+    collection_interval = optional(number, 60),
+    endpoint_override   = optional(string, "")
+  })
+  default = {
+    namespace           = "fck-nat"
+    collection_interval = 60
+    endpoint_override   = ""
+  }
+}
+
+variable "cloudwatch_agent_configuration_param_arn" {
+  description = "ARN of the SSM parameter containing the CloudWatch agent configuration. If none provided, creates one"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Tags to apply to resources created within the module"
   type        = map(string)

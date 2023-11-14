@@ -73,8 +73,10 @@ resource "aws_launch_template" "main" {
   }
 
   user_data = base64encode(templatefile("${path.module}/templates/user_data.sh", {
-    TERRAFORM_ENI_ID = aws_network_interface.main.id
-    TERRAFORM_EIP_ID = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
+    TERRAFORM_ENI_ID                 = aws_network_interface.main.id
+    TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
+    TERRAFORM_CWAGENT_ENABLED        = var.use_cloudwatch_agent ? "true" : ""
+    TERRAFORM_CWAGENT_CFG_PARAM_NAME = var.use_cloudwatch_agent ? aws_ssm_parameter.cloudwatch_agent_config[0].name : ""
   }))
 
   tags = var.tags

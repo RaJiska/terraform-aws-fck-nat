@@ -1,0 +1,20 @@
+name: Generate Documentation
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Render terraform docs and push changes
+        uses: terraform-docs/gh-actions@main
+        with:
+          working-dir: .
+          config-file: ".terraform-docs.yml"
+          output-method: "replace"
+          git-push: "true"
+          template: "{{ .Content }}"

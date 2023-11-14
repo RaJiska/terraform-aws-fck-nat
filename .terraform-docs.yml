@@ -1,0 +1,13 @@
+formatter: "markdown"
+
+header-from: docs/header.md
+
+sections:
+  hide: ["modules"]
+
+output:
+  mode: replace
+
+sort:
+  enabled: true
+  by: name

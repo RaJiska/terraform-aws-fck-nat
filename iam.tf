@@ -3,6 +3,10 @@ resource "aws_iam_instance_profile" "main" {
   role = aws_iam_role.main.name
 
   tags = var.tags
+
+  depends_on = [
+    aws_iam_role_policy_attachment.ssm,
+  ]
 }
 
 data "aws_iam_policy_document" "main" {
@@ -119,4 +123,9 @@ resource "aws_iam_role" "main" {
   }
 
   tags = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = aws_iam_role.main.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }

@@ -99,6 +99,12 @@ variable "cloudwatch_agent_configuration_param_arn" {
   default     = null
 }
 
+variable "enable_ssh" {
+  description = "Whether or not to enable SSH access to the NAT instance"
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "Tags to apply to resources created within the module"
   type        = map(string)

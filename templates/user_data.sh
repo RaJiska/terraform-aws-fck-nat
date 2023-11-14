@@ -7,3 +7,10 @@ echo "cwagent_enabled=${TERRAFORM_CWAGENT_ENABLED}" >> /etc/fck-nat.conf
 echo "cwagent_cfg_param_name=${TERRAFORM_CWAGENT_CFG_PARAM_NAME}" >> /etc/fck-nat.conf
 
 service fck-nat restart
+
+if [ "${TERRAFORM_ENABLE_SSH}" == "true" ]; then
+  echo "Enabling sshd..."
+  systemctl unmask sshd
+  systemctl enable sshd
+  systemctl start sshd
+fi

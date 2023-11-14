@@ -25,6 +25,12 @@ data "aws_ami" "main" {
   }
 }
 
+data "aws_arn" "ssm_param" {
+  count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn != null ? 1 : 0
+
+  arn = var.cloudwatch_agent_configuration_param_arn
+}
+
 resource "aws_launch_template" "main" {
   name          = var.name
   image_id      = local.ami_id
@@ -76,7 +82,7 @@ resource "aws_launch_template" "main" {
     TERRAFORM_ENI_ID                 = aws_network_interface.main.id
     TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
     TERRAFORM_CWAGENT_ENABLED        = var.use_cloudwatch_agent ? "true" : ""
-    TERRAFORM_CWAGENT_CFG_PARAM_NAME = var.use_cloudwatch_agent ? aws_ssm_parameter.cloudwatch_agent_config[0].name : ""
+    TERRAFORM_CWAGENT_CFG_PARAM_NAME = local.cwagent_param_name != null ? local.cwagent_param_name : ""
   }))
 
   tags = var.tags

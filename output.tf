@@ -80,5 +80,5 @@ output "autoscaling_group_arn" {
 
 output "cw_agent_config_ssm_parameter_arn" {
   description = "The ARN of the SSM parameter containing the Cloudwatch agent config"
-  value       = var.use_cloudwatch_agent ? aws_ssm_parameter.cloudwatch_agent_config[0].arn : null
+  value       = local.cwagent_param_arn
 }

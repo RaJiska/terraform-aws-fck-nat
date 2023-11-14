@@ -28,6 +28,15 @@
           { "name": "tcp_established", "rename": "ConnectionEstablishedCount",  "unit": "Count" }
         ]
       },
+      "ethtool": {
+        "interface_include": ["eth0", "eth1"],
+        "metrics_include": [
+          "bw_in_allowance_exceeded",
+          "bw_out_allowance_exceeded",
+          "conntrack_allowance_exceeded",
+          "pps_allowance_exceeded"
+        ]
+      },
       "mem": {
         "measurement": [
           { "name": "used_percent", "rename": "MemoryUsed",  "unit": "Percent" }

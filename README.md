@@ -10,6 +10,8 @@ an ASG
 - Cloudwatch metrics reported similar to those available with the managed NAT Gateway
 - Use of spot instances instead of on-demand for reduced costs
 
+/!\ Some of of those features, even though merged upstream, may require you to build the AMI until they are officially published.
+
 ## Example
 
 ```hcl
@@ -19,11 +21,15 @@ module "fck-nat" {
   name                 = "my-fck-nat"
   vpc_id               = "vpc-abc1234"
   subnet_id            = "subnet-abc1234"
-  update_route_table   = true
-  route_table_id       = "rtb-abc1234"
   # ha_mode              = true                 # Enables high-availability mode
   # eip_allocation_ids   = ["eipalloc-abc1234"] # Allocation ID of an existing EIP
   # use_cloudwatch_agent = true                 # Enables Cloudwatch agent and have metrics reported
+
+  update_route_tables = true
+  route_tables_ids = {
+    "your-rtb-name-A' = "rtb-abc1234Foo"
+    "your-rtb-name-B' = "rtb-abc1234Bar"
+  }
 }
 ```
 
@@ -74,10 +80,12 @@ module "fck-nat" {
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the NAT instance | `string` | `"t4g.micro"` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
-| <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | Route table to update. Only valid if update\_route\_table is true | `string` | `null` | no |
+| <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | Deprecated. Use route\_tables\_ids instead | `string` | `null` | no |
+| <a name="input_route_tables_ids"></a> [route\_tables\_ids](#input\_route\_tables\_ids) | Route tables to update. Only valid if update\_route\_tables is true | `map(string)` | `{}` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID to deploy the NAT instance into | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources created within the module | `map(string)` | `{}` | no |
-| <a name="input_update_route_table"></a> [update\_route\_table](#input\_update\_route\_table) | Whether or not to update the route table with the NAT instance | `bool` | `false` | no |
+| <a name="input_update_route_table"></a> [update\_route\_table](#input\_update\_route\_table) | Deprecated. Use update\_route\_tables instead | `bool` | `false` | no |
+| <a name="input_update_route_tables"></a> [update\_route\_tables](#input\_update\_route\_tables) | Whether or not to update the route tables with the NAT instance | `bool` | `false` | no |
 | <a name="input_use_cloudwatch_agent"></a> [use\_cloudwatch\_agent](#input\_use\_cloudwatch\_agent) | Whether or not to enable CloudWatch agent for the NAT instance | `bool` | `false` | no |
 | <a name="input_use_spot_instances"></a> [use\_spot\_instances](#input\_use\_spot\_instances) | Whether or not to use spot instances for running the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |

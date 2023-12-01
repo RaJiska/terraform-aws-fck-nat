@@ -10,6 +10,8 @@ an ASG
 - Cloudwatch metrics reported similar to those available with the managed NAT Gateway
 - Use of spot instances instead of on-demand for reduced costs
 
+/!\ Some of of those features, even though merged upstream, may require you to build the AMI until they are officially published.
+
 ## Example
 
 ```hcl
@@ -19,10 +21,14 @@ module "fck-nat" {
   name                 = "my-fck-nat"
   vpc_id               = "vpc-abc1234"
   subnet_id            = "subnet-abc1234"
-  update_route_table   = true
-  route_table_id       = "rtb-abc1234"
   # ha_mode              = true                 # Enables high-availability mode
   # eip_allocation_ids   = ["eipalloc-abc1234"] # Allocation ID of an existing EIP
   # use_cloudwatch_agent = true                 # Enables Cloudwatch agent and have metrics reported
+
+  update_route_tables = true
+  route_tables_ids = {
+    "your-rtb-name-A' = "rtb-abc1234Foo"
+    "your-rtb-name-B' = "rtb-abc1234Bar"
+  }
 }
 ```

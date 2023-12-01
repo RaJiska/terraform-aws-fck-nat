@@ -8,10 +8,13 @@ data "aws_region" "current" {}
 module "fck-nat" {
   source = "../../"
 
-  name               = local.name
-  vpc_id             = aws_vpc.main.id
-  subnet_id          = aws_subnet.public.id
-  update_route_table = true
-  route_table_id     = aws_route_table.private.id
-  ha_mode            = false
+  name      = local.name
+  vpc_id    = aws_vpc.main.id
+  subnet_id = aws_subnet.public.id
+  ha_mode   = true
+
+  update_route_tables = true
+  route_tables_ids = {
+    "private" = aws_route_table.private.id
+  }
 }

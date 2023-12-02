@@ -55,7 +55,10 @@ resource "aws_launch_template" "main" {
     description                 = "${var.name} ephemeral public ENI"
     subnet_id                   = var.subnet_id
     associate_public_ip_address = true
-    security_groups             = [aws_security_group.main.id]
+    security_groups             = concat(
+      [aws_security_group.main.id],
+      var.additional_security_group_ids
+    )
   }
 
   dynamic "instance_market_options" {

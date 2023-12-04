@@ -49,8 +49,13 @@ output "eni_arn" {
 }
 
 output "security_group_id" {
-  description = "The ID of the security group used by fck-nat ENIs"
+  description = "Deprecated. The ID of the security group used by fck-nat ENIs"
   value       = aws_security_group.main.id
+}
+
+output "security_group_ids" {
+  description = "List of security group IDs used by fck-nat ENIs"
+  value       = local.security_groups
 }
 
 output "role_arn" {

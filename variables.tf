@@ -111,14 +111,20 @@ variable "cloudwatch_agent_configuration_param_arn" {
   default     = null
 }
 
+variable "use_default_security_group" {
+  description = "Whether or not to use the default security group for the NAT instance"
+  type        = bool
+  default     = true
+}
+
+variable "additional_security_group_ids" {
+  description = "A list of identifiers of security groups to be added for the NAT instance"
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   description = "Tags to apply to resources created within the module"
   type        = map(string)
   default     = {}
-}
-
-variable "additional_security_group_ids" {
-  description = "A list of identifiers of security groups to be added to the EC2 instance"
-  type        = list(string)
-  default     = []
 }

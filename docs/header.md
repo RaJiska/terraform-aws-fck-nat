@@ -27,8 +27,8 @@ module "fck-nat" {
 
   update_route_tables = true
   route_tables_ids = {
-    "your-rtb-name-A' = "rtb-abc1234Foo"
-    "your-rtb-name-B' = "rtb-abc1234Bar"
+    "your-rtb-name-A" = "rtb-abc1234Foo"
+    "your-rtb-name-B" = "rtb-abc1234Bar"
   }
 }
 ```

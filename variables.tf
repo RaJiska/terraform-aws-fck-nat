@@ -116,3 +116,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "additional_security_group_ids" {
+  description = "A list of identifiers of security groups to be added to the EC2 instance"
+  type        = list(string)
+  default     = []
+}

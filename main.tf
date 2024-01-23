@@ -23,7 +23,7 @@ resource "aws_security_group" "main" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["${data.aws_vpc.main.cidr_block}"]
+    cidr_blocks = data.aws_vpc.main.cidr_block_associations[*].cidr_block
   }
 
   egress {
@@ -43,7 +43,7 @@ resource "aws_security_group" "main" {
 resource "aws_network_interface" "main" {
   description       = "${var.name} static private ENI"
   subnet_id         = var.subnet_id
-  security_groups   = [aws_security_group.main.id]
+  security_groups   = local.security_groups
   source_dest_check = false
 
   tags = merge(var.tags, {

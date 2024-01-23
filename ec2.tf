@@ -58,14 +58,6 @@ resource "aws_launch_template" "main" {
     security_groups             = local.security_groups
   }
 
-  dynamic "instance_market_options" {
-    for_each = var.use_spot_instances ? ["x"] : []
-
-    content {
-      market_type = "spot"
-    }
-  }
-
   dynamic "tag_specifications" {
     for_each = ["instance", "network-interface", "volume"]
 
@@ -94,6 +86,14 @@ resource "aws_instance" "main" {
   launch_template {
     id      = aws_launch_template.main.id
     version = "$Latest"
+  }
+
+  dynamic "instance_market_options" {
+    for_each = var.use_spot_instances ? ["x"] : []
+
+    content {
+      market_type = "spot"
+    }
   }
 
   tags = var.tags

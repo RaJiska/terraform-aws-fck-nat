@@ -6,11 +6,9 @@ A Terraform module for deploying NAT Instances using [fck-nat](https://github.co
 The following is a list of features available with this module:
 - High-availability mode achieved through a floating internal ENI automatically attached to instances being started by
 an ASG
-- Optional consistent static IP via EIP re-attachment to the internet facing ENI **\***
-- Cloudwatch metrics reported similar to those available with the managed NAT Gateway **\***
+- Optional consistent static IP via EIP re-attachment to the internet facing ENI
+- Cloudwatch metrics reported similar to those available with the managed NAT Gateway
 - Use of spot instances instead of on-demand for reduced costs
-
-**Features marked with a * may not be published as part of the latest fck-nat version and may require you to build the AMI yourself yourself to use them.**
 
 ## Example
 

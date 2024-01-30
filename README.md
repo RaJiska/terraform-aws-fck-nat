@@ -65,6 +65,7 @@ module "fck-nat" {
 | [aws_iam_policy_document.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_vpc.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
+| [aws_key_pair.ssh_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair) | resource |
 
 ## Inputs
 
@@ -91,6 +92,9 @@ module "fck-nat" {
 | <a name="input_use_default_security_group"></a> [use\_default\_security\_group](#input\_use\_default\_security\_group) | Whether or not to use the default security group for the NAT instance | `bool` | `true` | no |
 | <a name="input_use_spot_instances"></a> [use\_spot\_instances](#input\_use\_spot\_instances) | Whether or not to use spot instances for running the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |
+| <a name="input_ssh_enabled"></a> [ssh\_enabled](#input\_ssh\_enabled) | Whether or not to allow SSH connections to the NAT instance | `bool` | `false` | no |
+| <a name="input_ssh_public_key"></a> [ssh\_public\_key](#input\_ssh\_public\_key) | SSH key to use for the NAT instance. Only valid if ssh_enabled is true | `string` | `null` | no |
+| <a name="input_ssh_public_key_name"></a> [ssh\_public\_key\_name](#input\_ssh\_public\_key\_name) | Name of the SSH key to use for the NAT instance. Only valid if ssh_enabled is true | `string` | `fck-nat-ssh-key` | no |
 
 ## Outputs
 
@@ -104,6 +108,7 @@ module "fck-nat" {
 | <a name="output_eni_id"></a> [eni\_id](#output\_eni\_id) | The ID of the static ENI used by the fck-nat instance |
 | <a name="output_ha_mode"></a> [ha\_mode](#output\_ha\_mode) | Whether or not high-availability mode is enabled via autoscaling group |
 | <a name="output_instance_arn"></a> [instance\_arn](#output\_instance\_arn) | The ARN of the fck-nat instance if running in non-HA mode |
+| <a name="output_instance_public_ip"></a> [instance\_public\_ip](#output\_instance\_public\_ip) | The public IP address of the fck-nat instance if running in non-HA mode |
 | <a name="output_instance_profile_arn"></a> [instance\_profile\_arn](#output\_instance\_profile\_arn) | The ARN of the instance profile used by the fck-nat instance |
 | <a name="output_instance_type"></a> [instance\_type](#output\_instance\_type) | Instance type used for the fck-nat instance |
 | <a name="output_kms_key_id"></a> [kms\_key\_id](#output\_kms\_key\_id) | KMS key ID to use for encrypting fck-nat instance EBS volumes |

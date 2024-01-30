@@ -128,3 +128,21 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "ssh_enabled" {
+  description = "Whether or not to allow SSH connections to the NAT instance"
+  type        = bool
+  default     = false
+}
+
+variable "ssh_public_key" {
+  description = "SSH key to use for the NAT instance. Only valid if ssh_enabled is true"
+  type        = string
+  default     = null
+}
+
+variable "ssh_public_key_name" {
+  description = "Name of the SSH key to use for the NAT instance. Only valid if ssh_enabled is true"
+  type        = string
+  default     = "fck-nat-ssh-key"
+}

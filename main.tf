@@ -26,6 +26,17 @@ resource "aws_security_group" "main" {
     cidr_blocks = ["${data.aws_vpc.main.cidr_block}"]
   }
 
+  dynamic "ingress" {
+    for_each = var.ssh_enabled ? [1] : []
+    content {
+      description = "SSH ingress from anywhere"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
   egress {
     description      = "Unrestricted egress"
     from_port        = 0

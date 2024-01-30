@@ -52,7 +52,7 @@ resource "aws_network_interface" "main" {
 }
 
 resource "aws_route" "main" {
-  for_each = var.update_route_tables || var.update_route_tables ? merge(var.route_tables_ids, var.route_table_id != null ? { RESERVED_FKC_NAT = var.route_table_id } : {}) : {}
+  for_each = var.update_route_tables || var.update_route_table ? merge(var.route_tables_ids, var.route_table_id != null ? { RESERVED_FKC_NAT = var.route_table_id } : {}) : {}
 
   route_table_id         = each.value
   destination_cidr_block = "0.0.0.0/0"

@@ -32,6 +32,7 @@ data "aws_arn" "ssm_param" {
 }
 
 resource "aws_launch_template" "main" {
+  #checkov:skip=CKV_AWS_88:NAT instances must have a public IP.
   name          = var.name
   image_id      = local.ami_id
   instance_type = var.instance_type
@@ -85,10 +86,17 @@ resource "aws_launch_template" "main" {
     TERRAFORM_CWAGENT_CFG_PARAM_NAME = local.cwagent_param_name != null ? local.cwagent_param_name : ""
   }))
 
+  # Enforce IMDSv2
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
   tags = var.tags
 }
 
 resource "aws_instance" "main" {
+  #checkov:skip=CKV2_AWS_41:False positive, IAM role is attached via the launch template.
   count = var.ha_mode ? 0 : 1
 
   launch_template {

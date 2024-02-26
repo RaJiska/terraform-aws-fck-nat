@@ -27,13 +27,13 @@ resource "aws_security_group" "main" {
   }
 
   dynamic "ingress" {
-    for_each = var.ssh_enabled ? [1] : []
+    for_each = var.ssh_key_name != null ? [1] : []
     content {
       description = "SSH ingress from anywhere"
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = var.ssh_cidr_blocks
     }
   }
 

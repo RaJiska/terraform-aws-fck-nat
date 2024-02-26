@@ -31,19 +31,12 @@ data "aws_arn" "ssm_param" {
   arn = var.cloudwatch_agent_configuration_param_arn
 }
 
-resource "aws_key_pair" "ssh_key" {
-  count = var.ssh_enabled ? 1 : 0
-
-  key_name   = var.ssh_public_key_name
-  public_key = var.ssh_public_key
-}
-
 resource "aws_launch_template" "main" {
   name          = var.name
   image_id      = local.ami_id
   instance_type = var.instance_type
 
-  key_name = length(aws_key_pair.ssh_key) != 0 ? aws_key_pair.ssh_key[0].key_name : ""
+  key_name      = var.ssh_key_name
 
   block_device_mappings {
     device_name = "/dev/xvda"

@@ -129,20 +129,14 @@ variable "tags" {
   default     = {}
 }
 
-variable "ssh_enabled" {
-  description = "Whether or not to allow SSH connections to the NAT instance"
-  type        = bool
-  default     = false
-}
-
-variable "ssh_public_key" {
-  description = "SSH key to use for the NAT instance. Only valid if ssh_enabled is true"
+variable "ssh_key_name" {
+  description = "Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided"
   type        = string
   default     = null
 }
 
-variable "ssh_public_key_name" {
-  description = "Name of the SSH key to use for the NAT instance. Only valid if ssh_enabled is true"
-  type        = string
-  default     = "fck-nat-ssh-key"
+variable "ssh_cidr_blocks" {
+  description = "CIDR blocks to allow SSH access to the NAT instance"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }

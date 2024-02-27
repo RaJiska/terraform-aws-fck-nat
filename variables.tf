@@ -79,6 +79,12 @@ variable "eip_allocation_ids" {
   default     = []
 }
 
+variable "attach_ssm_policy" {
+  description = "Whether to attach the minimum required IAM permissions to connect to the instance via SSM."
+  type        = bool
+  default     = true
+}
+
 variable "use_spot_instances" {
   description = "Whether or not to use spot instances for running the NAT instance"
   type        = bool

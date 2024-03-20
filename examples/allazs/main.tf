@@ -23,7 +23,7 @@ module "fck-nat" {
 
   update_route_tables = true
   route_tables_ids = {
-    "private" = aws_route_table.private[each.key].id
+    private = aws_route_table.private[each.key].id
   }
 
   tags = {

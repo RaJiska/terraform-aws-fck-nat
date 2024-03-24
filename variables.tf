@@ -70,7 +70,7 @@ variable "ami_id" {
 variable "ebs_root_volume_size" {
   description = "Size of the EBS root volume in GB"
   type        = number
-  default     = 2
+  default     = 8
 }
 
 variable "eip_allocation_ids" {

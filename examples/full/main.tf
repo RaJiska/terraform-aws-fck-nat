@@ -12,6 +12,9 @@ module "fck-nat" {
   vpc_id    = aws_vpc.main.id
   subnet_id = aws_subnet.public.id
   ha_mode   = true
+  ha_mode_enabled_metrics = [
+    "GroupInServiceInstances"
+  ]
 
   update_route_tables = true
   route_tables_ids = {

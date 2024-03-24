@@ -1,3 +1,7 @@
+locals {
+  asg_cw_metrics_enabled = length(var.ha_mode_enabled_metrics) >= 1
+}
+
 resource "aws_autoscaling_group" "main" {
   count = var.ha_mode ? 1 : 0
 
@@ -7,6 +11,8 @@ resource "aws_autoscaling_group" "main" {
   desired_capacity    = 1
   health_check_type   = "EC2"
   vpc_zone_identifier = [var.subnet_id]
+
+  enabled_metrics = local.asg_cw_metrics_enabled ? var.ha_mode_enabled_metrics : null
 
   launch_template {
     id      = aws_launch_template.main.id

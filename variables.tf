@@ -134,3 +134,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "ssh_key_name" {
+  description = "Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided"
+  type        = string
+  default     = null
+}
+
+variable "ssh_cidr_blocks" {
+  description = "CIDR blocks to allow SSH access to the NAT instance"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}

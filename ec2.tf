@@ -64,6 +64,10 @@ resource "aws_launch_template" "main" {
 
     content {
       market_type = "spot"
+      spot_options {
+        instance_interruption_behavior = "stop"
+        spot_instance_type             = "persistent"
+      }
     }
   }
 

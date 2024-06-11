@@ -6,11 +6,9 @@ A Terraform module for deploying NAT Instances using [fck-nat](https://github.co
 The following is a list of features available with this module:
 - High-availability mode achieved through a floating internal ENI automatically attached to instances being started by
 an ASG
-- Optional consistent static IP via EIP re-attachment to the internet facing ENI **\***
-- Cloudwatch metrics reported similar to those available with the managed NAT Gateway **\***
+- Optional consistent static IP via EIP re-attachment to the internet facing ENI
+- Cloudwatch metrics reported similar to those available with the managed NAT Gateway
 - Use of spot instances instead of on-demand for reduced costs
-
-**Features marked with a * may not be published as part of the latest fck-nat version and may require you to build the AMI yourself yourself to use them.**
 
 ## Example
 
@@ -72,9 +70,10 @@ module "fck-nat" {
 |------|-------------|------|---------|:--------:|
 | <a name="input_additional_security_group_ids"></a> [additional\_security\_group\_ids](#input\_additional\_security\_group\_ids) | A list of identifiers of security groups to be added for the NAT instance | `list(string)` | `[]` | no |
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | AMI to use for the NAT instance. Uses fck-nat latest AMI in the region if none provided | `string` | `null` | no |
+| <a name="input_attach_ssm_policy"></a> [attach\_ssm\_policy](#input\_attach\_ssm\_policy) | Whether to attach the minimum required IAM permissions to connect to the instance via SSM. | `bool` | `true` | no |
 | <a name="input_cloudwatch_agent_configuration"></a> [cloudwatch\_agent\_configuration](#input\_cloudwatch\_agent\_configuration) | CloudWatch configuration for the NAT instance | <pre>object({<br>    namespace           = optional(string, "fck-nat"),<br>    collection_interval = optional(number, 60),<br>    endpoint_override   = optional(string, "")<br>  })</pre> | <pre>{<br>  "collection_interval": 60,<br>  "endpoint_override": "",<br>  "namespace": "fck-nat"<br>}</pre> | no |
 | <a name="input_cloudwatch_agent_configuration_param_arn"></a> [cloudwatch\_agent\_configuration\_param\_arn](#input\_cloudwatch\_agent\_configuration\_param\_arn) | ARN of the SSM parameter containing the CloudWatch agent configuration. If none provided, creates one | `string` | `null` | no |
-| <a name="input_ebs_root_volume_size"></a> [ebs\_root\_volume\_size](#input\_ebs\_root\_volume\_size) | Size of the EBS root volume in GB | `number` | `2` | no |
+| <a name="input_ebs_root_volume_size"></a> [ebs\_root\_volume\_size](#input\_ebs\_root\_volume\_size) | Size of the EBS root volume in GB | `number` | `8` | no |
 | <a name="input_eip_allocation_ids"></a> [eip\_allocation\_ids](#input\_eip\_allocation\_ids) | EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation. | `list(string)` | `[]` | no |
 | <a name="input_encryption"></a> [encryption](#input\_encryption) | Whether or not to encrypt the EBS volume | `bool` | `true` | no |
 | <a name="input_ha_mode"></a> [ha\_mode](#input\_ha\_mode) | Whether or not high-availability mode should be enabled via autoscaling group | `bool` | `true` | no |

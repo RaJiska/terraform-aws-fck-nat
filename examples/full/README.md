@@ -29,7 +29,7 @@ $ terraform apply
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_fck-nat"></a> [fck-nat](#module\_fck-nat) | ../ | n/a |
+| <a name="module_fck-nat"></a> [fck-nat](#module\_fck-nat) | ../../ | n/a |
 
 ## Resources
 

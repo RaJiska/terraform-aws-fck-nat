@@ -94,6 +94,25 @@ data "aws_iam_policy_document" "main" {
       }
     }
   }
+
+  dynamic "statement" {
+    for_each = var.attach_ssm_policy ? ["x"] : []
+
+    content {
+      sid    = "SessionManager"
+      effect = "Allow"
+      actions = [
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenDataChannel",
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssm:UpdateInstanceInformation",
+      ]
+      resources = [
+        "*"
+      ]
+    }
+  }
 }
 
 resource "aws_iam_role" "main" {

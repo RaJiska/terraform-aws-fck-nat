@@ -70,13 +70,19 @@ variable "ami_id" {
 variable "ebs_root_volume_size" {
   description = "Size of the EBS root volume in GB"
   type        = number
-  default     = 2
+  default     = 8
 }
 
 variable "eip_allocation_ids" {
   description = "EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation."
   type        = list(string)
   default     = []
+}
+
+variable "attach_ssm_policy" {
+  description = "Whether to attach the minimum required IAM permissions to connect to the instance via SSM."
+  type        = bool
+  default     = true
 }
 
 variable "use_spot_instances" {

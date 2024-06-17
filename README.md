@@ -83,6 +83,8 @@ module "fck-nat" {
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
 | <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | Deprecated. Use route\_tables\_ids instead | `string` | `null` | no |
 | <a name="input_route_tables_ids"></a> [route\_tables\_ids](#input\_route\_tables\_ids) | Route tables to update. Only valid if update\_route\_tables is true | `map(string)` | `{}` | no |
+| <a name="input_ssh_cidr_blocks"></a> [ssh\_cidr\_blocks](#input\_ssh\_cidr\_blocks) | CIDR blocks to allow SSH access to the NAT instance from | `list(string)` | `[]` | no |
+| <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided | `string` | `null` | no |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID to deploy the NAT instance into | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources created within the module | `map(string)` | `{}` | no |
 | <a name="input_update_route_table"></a> [update\_route\_table](#input\_update\_route\_table) | Deprecated. Use update\_route\_tables instead | `bool` | `false` | no |
@@ -90,9 +92,8 @@ module "fck-nat" {
 | <a name="input_use_cloudwatch_agent"></a> [use\_cloudwatch\_agent](#input\_use\_cloudwatch\_agent) | Whether or not to enable CloudWatch agent for the NAT instance | `bool` | `false` | no |
 | <a name="input_use_default_security_group"></a> [use\_default\_security\_group](#input\_use\_default\_security\_group) | Whether or not to use the default security group for the NAT instance | `bool` | `true` | no |
 | <a name="input_use_spot_instances"></a> [use\_spot\_instances](#input\_use\_spot\_instances) | Whether or not to use spot instances for running the NAT instance | `bool` | `false` | no |
+| <a name="input_use_ssh"></a> [use\_ssh](#input\_use\_ssh) | Whether or not to enable SSH access to the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |
-| <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided | `string` | `null` | no |
-| <a name="input_ssh_cidr_blocks"></a> [ssh\_cidr\_blocks](#input\_ssh\_cidr\_blocks) | CIDR blocks to allow SSH access to the NAT instance | `list(string)` | `["0.0.0.0/0"]` | no |
 
 ## Outputs
 
@@ -106,8 +107,8 @@ module "fck-nat" {
 | <a name="output_eni_id"></a> [eni\_id](#output\_eni\_id) | The ID of the static ENI used by the fck-nat instance |
 | <a name="output_ha_mode"></a> [ha\_mode](#output\_ha\_mode) | Whether or not high-availability mode is enabled via autoscaling group |
 | <a name="output_instance_arn"></a> [instance\_arn](#output\_instance\_arn) | The ARN of the fck-nat instance if running in non-HA mode |
-| <a name="output_instance_public_ip"></a> [instance\_public\_ip](#output\_instance\_public\_ip) | The public IP address of the fck-nat instance if running in non-HA mode |
 | <a name="output_instance_profile_arn"></a> [instance\_profile\_arn](#output\_instance\_profile\_arn) | The ARN of the instance profile used by the fck-nat instance |
+| <a name="output_instance_public_ip"></a> [instance\_public\_ip](#output\_instance\_public\_ip) | The public IP address of the fck-nat instance if running in non-HA mode |
 | <a name="output_instance_type"></a> [instance\_type](#output\_instance\_type) | Instance type used for the fck-nat instance |
 | <a name="output_kms_key_id"></a> [kms\_key\_id](#output\_kms\_key\_id) | KMS key ID to use for encrypting fck-nat instance EBS volumes |
 | <a name="output_launch_template_id"></a> [launch\_template\_id](#output\_launch\_template\_id) | The ID of the launch template used to spawn fck-nat instances |

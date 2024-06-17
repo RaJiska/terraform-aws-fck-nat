@@ -35,7 +35,6 @@ resource "aws_launch_template" "main" {
   name          = var.name
   image_id      = local.ami_id
   instance_type = var.instance_type
-
   key_name      = var.ssh_key_name
 
   block_device_mappings {

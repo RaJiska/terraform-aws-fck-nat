@@ -123,10 +123,10 @@ variable "additional_security_group_ids" {
   default     = []
 }
 
-variable "tags" {
-  description = "Tags to apply to resources created within the module"
-  type        = map(string)
-  default     = {}
+variable "use_ssh" {
+  description = "Whether or not to enable SSH access to the NAT instance"
+  type        = bool
+  default     = false
 }
 
 variable "ssh_key_name" {
@@ -136,7 +136,13 @@ variable "ssh_key_name" {
 }
 
 variable "ssh_cidr_blocks" {
-  description = "CIDR blocks to allow SSH access to the NAT instance"
+  description = "CIDR blocks to allow SSH access to the NAT instance from"
   type        = list(string)
-  default     = ["0.0.0.0/0"]
+  default     = []
+}
+
+variable "tags" {
+  description = "Tags to apply to resources created within the module"
+  type        = map(string)
+  default     = {}
 }

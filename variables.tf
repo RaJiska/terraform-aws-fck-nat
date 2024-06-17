@@ -129,6 +129,30 @@ variable "additional_security_group_ids" {
   default     = []
 }
 
+variable "use_ssh" {
+  description = "Whether or not to enable SSH access to the NAT instance"
+  type        = bool
+  default     = false
+}
+
+variable "ssh_key_name" {
+  description = "Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided"
+  type        = string
+  default     = null
+}
+
+variable "ssh_cidr_blocks" {
+  description = "CIDR blocks to allow SSH access to the NAT instance from"
+  type = object({
+    ipv4 = optional(list(string), [])
+    ipv6 = optional(list(string), [])
+  })
+  default = {
+    ipv4 = [],
+    ipv6 = []
+  }
+}
+
 variable "tags" {
   description = "Tags to apply to resources created within the module"
   type        = map(string)

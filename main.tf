@@ -14,6 +14,7 @@ data "aws_vpc" "main" {
 }
 
 resource "aws_security_group" "main" {
+  #checkov:skip=CKV_AWS_24:False positive from Checkov, ingress CIDR blocks on port 22 default to "[]"
   name        = var.name
   description = "Used in ${var.name} instance of fck-nat in subnet ${var.subnet_id}"
   vpc_id      = data.aws_vpc.main.id
@@ -27,14 +28,15 @@ resource "aws_security_group" "main" {
   }
 
   dynamic "ingress" {
-    for_each = var.use_ssh && length(var.ssh_cidr_blocks) > 0 ? [1] : []
+    for_each = var.use_ssh && (length(var.ssh_cidr_blocks.ipv4) > 0 || length(var.ssh_cidr_blocks.ipv6) > 0) ? [1] : [] #  
 
     content {
-      description = "SSH access"
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = var.ssh_cidr_blocks
+      description      = "SSH access"
+      from_port        = 22
+      to_port          = 22
+      protocol         = "tcp"
+      cidr_blocks      = var.ssh_cidr_blocks.ipv4
+      ipv6_cidr_blocks = var.ssh_cidr_blocks.ipv6
     }
   }
 

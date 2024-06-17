@@ -137,8 +137,14 @@ variable "ssh_key_name" {
 
 variable "ssh_cidr_blocks" {
   description = "CIDR blocks to allow SSH access to the NAT instance from"
-  type        = list(string)
-  default     = []
+  type = object({
+    ipv4 = optional(list(string), [])
+    ipv6 = optional(list(string), [])
+  })
+  default = {
+    ipv4 = [],
+    ipv6 = []
+  }
 }
 
 variable "tags" {

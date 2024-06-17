@@ -55,12 +55,6 @@ variable "ha_mode" {
   default     = true
 }
 
-variable "ha_mode_enabled_metrics" {
-  description = "Whether or not to enable autoscaling group cloudwatch metrics collection for specified metrics. Disabled by default or when no metrics were provided"
-  type = list(string)
-  default = []
-}
-
 variable "instance_type" {
   description = "Instance type to use for the NAT instance"
   type        = string

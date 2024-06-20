@@ -13,10 +13,14 @@ resource "aws_autoscaling_group" "main" {
     version = "$Latest"
   }
 
-  tag {
-    key                 = "Name"
-    value               = var.name
-    propagate_at_launch = true
+  dynamic "tag" {
+    for_each = lookup(var.tags, "Name", null) == null ? ["Name"] : []
+
+    content {
+      key                 = "Name"
+      value               = var.name
+      propagate_at_launch = true
+    }
   }
 
   dynamic "tag" {

@@ -74,9 +74,7 @@ resource "aws_launch_template" "main" {
     content {
       resource_type = tag_specifications.value
 
-      tags = merge(var.tags, {
-        Name = var.name
-      })
+      tags = merge({ Name = var.name }, var.tags)
     }
   }
 

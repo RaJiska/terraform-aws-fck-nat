@@ -49,9 +49,7 @@ resource "aws_security_group" "main" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = merge(var.tags, {
-    Name = var.name
-  })
+  tags = merge({ Name = var.name }, var.tags)
 }
 
 resource "aws_network_interface" "main" {
@@ -60,9 +58,7 @@ resource "aws_network_interface" "main" {
   security_groups   = [aws_security_group.main.id]
   source_dest_check = false
 
-  tags = merge(var.tags, {
-    Name = var.name
-  })
+  tags = merge({ Name = var.name }, var.tags)
 }
 
 resource "aws_route" "main" {

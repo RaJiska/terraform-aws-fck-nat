@@ -6,7 +6,7 @@ data "aws_ami" "main" {
 
   filter {
     name   = "name"
-    values = ["fck-nat-al2023-hvm-*"]
+    values = ["fck-nat-*"]
   }
 
   filter {

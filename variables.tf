@@ -100,9 +100,9 @@ variable "use_cloudwatch_agent" {
 variable "cloudwatch_agent_configuration" {
   description = "CloudWatch configuration for the NAT instance"
   type = object({
-    namespace           = optional(string, "fck-nat"),
-    collection_interval = optional(number, 60),
-    endpoint_override   = optional(string, "")
+    namespace           = optional(string),
+    collection_interval = optional(number),
+    endpoint_override   = optional(string)
   })
   default = {
     namespace           = "fck-nat"
@@ -144,8 +144,8 @@ variable "ssh_key_name" {
 variable "ssh_cidr_blocks" {
   description = "CIDR blocks to allow SSH access to the NAT instance from"
   type = object({
-    ipv4 = optional(list(string), [])
-    ipv6 = optional(list(string), [])
+    ipv4 = optional(list(string))
+    ipv6 = optional(list(string))
   })
   default = {
     ipv4 = [],

@@ -76,13 +76,19 @@ variable "ami_id" {
 variable "ebs_root_volume_size" {
   description = "Size of the EBS root volume in GB"
   type        = number
-  default     = 2
+  default     = 8
 }
 
 variable "eip_allocation_ids" {
   description = "EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation."
   type        = list(string)
   default     = []
+}
+
+variable "attach_ssm_policy" {
+  description = "Whether to attach the minimum required IAM permissions to connect to the instance via SSM."
+  type        = bool
+  default     = true
 }
 
 variable "use_spot_instances" {
@@ -127,6 +133,30 @@ variable "additional_security_group_ids" {
   description = "A list of identifiers of security groups to be added for the NAT instance"
   type        = list(string)
   default     = []
+}
+
+variable "use_ssh" {
+  description = "Whether or not to enable SSH access to the NAT instance"
+  type        = bool
+  default     = false
+}
+
+variable "ssh_key_name" {
+  description = "Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided"
+  type        = string
+  default     = null
+}
+
+variable "ssh_cidr_blocks" {
+  description = "CIDR blocks to allow SSH access to the NAT instance from"
+  type = object({
+    ipv4 = optional(list(string), [])
+    ipv6 = optional(list(string), [])
+  })
+  default = {
+    ipv4 = [],
+    ipv6 = []
+  }
 }
 
 variable "tags" {

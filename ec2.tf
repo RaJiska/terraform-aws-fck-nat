@@ -36,6 +36,7 @@ resource "aws_launch_template" "main" {
   name          = var.name
   image_id      = local.ami_id
   instance_type = var.instance_type
+  key_name      = var.ssh_key_name
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -73,9 +74,7 @@ resource "aws_launch_template" "main" {
     content {
       resource_type = tag_specifications.value
 
-      tags = merge(var.tags, {
-        Name = var.name
-      })
+      tags = merge({ Name = var.name }, var.tags)
     }
   }
 

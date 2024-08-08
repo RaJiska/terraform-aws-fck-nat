@@ -78,6 +78,11 @@ output "instance_arn" {
   value       = var.ha_mode ? null : aws_instance.main[0].arn
 }
 
+output "instance_public_ip" {
+  description = "The public IP address of the fck-nat instance if running in non-HA mode"
+  value       = var.ha_mode ? null : aws_instance.main[0].public_ip
+}
+
 output "autoscaling_group_arn" {
   description = "The ARN of the autoscaling group if running in HA mode"
   value       = var.ha_mode ? aws_autoscaling_group.main[0].arn : null

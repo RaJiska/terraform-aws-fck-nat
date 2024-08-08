@@ -13,10 +13,14 @@ resource "aws_autoscaling_group" "main" {
     version = "$Latest"
   }
 
-  tag {
-    key                 = "Name"
-    value               = var.name
-    propagate_at_launch = true
+  dynamic "tag" {
+    for_each = lookup(var.tags, "Name", null) == null ? ["Name"] : []
+
+    content {
+      key                 = "Name"
+      value               = var.name
+      propagate_at_launch = true
+    }
   }
 
   dynamic "tag" {
@@ -28,6 +32,29 @@ resource "aws_autoscaling_group" "main" {
       propagate_at_launch = false
     }
   }
+
+  enabled_metrics = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupPendingInstances",
+    "GroupStandbyInstances",
+    "GroupTerminatingInstances",
+    "GroupTotalInstances",
+    "GroupInServiceCapacity",
+    "GroupPendingCapacity",
+    "GroupStandbyCapacity",
+    "GroupTerminatingCapacity",
+    "GroupTotalCapacity",
+    "WarmPoolDesiredCapacity",
+    "WarmPoolWarmedCapacity",
+    "WarmPoolPendingCapacity",
+    "WarmPoolTerminatingCapacity",
+    "WarmPoolTotalCapacity",
+    "GroupAndWarmPoolDesiredCapacity",
+    "GroupAndWarmPoolTotalCapacity"
+  ]
 
   timeouts {
     delete = "15m"

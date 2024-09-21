@@ -15,6 +15,10 @@ module "fck-nat" {
   ha_mode   = false
   use_nat64 = local.ipv6_support
 
+  # Pre-release version of the AMI
+  # Replace the below with the ID according to your region and architecture: https://github.com/AndrewGuenther/fck-nat/issues/41#issuecomment-2036191471
+  ami_id = "ami-0c2e470170d2a48e3" # ARM us-east-1
+
   update_route_table = true
   route_tables_ids = {
     "private" = aws_route_table.private.id

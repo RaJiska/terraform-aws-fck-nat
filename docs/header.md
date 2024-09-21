@@ -14,7 +14,7 @@ an ASG
 
 ```hcl
 module "fck-nat" {
-  source = "RaJiska/fck-nat/aws"
+  source = "git::https://github.com/RaJiska/terraform-aws-fck-nat.git"
 
   name                 = "my-fck-nat"
   vpc_id               = "vpc-abc1234"

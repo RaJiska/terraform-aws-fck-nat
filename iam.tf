@@ -118,6 +118,7 @@ data "aws_iam_policy_document" "main" {
 resource "aws_iam_policy" "main" {
   name   = var.name
   policy = data.aws_iam_policy_document.main.json
+  tags   = var.tags
 }
 
 data "aws_iam_policy_document" "instance_assume_role_policy" {

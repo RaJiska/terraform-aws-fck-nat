@@ -115,27 +115,30 @@ data "aws_iam_policy_document" "main" {
   }
 }
 
-resource "aws_iam_role" "main" {
-  name = var.name
+resource "aws_iam_policy" "main" {
+  name   = var.name
+  policy = data.aws_iam_policy_document.main.json
+  tags   = var.tags
+}
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  inline_policy {
-    name   = "Main"
-    policy = data.aws_iam_policy_document.main.json
+data "aws_iam_policy_document" "instance_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+    effect = "Allow"
   }
+}
 
-  tags = var.tags
+resource "aws_iam_role" "main" {
+  name               = var.name
+  assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policy.json
+  tags               = var.tags
+}
+
+resource "aws_iam_role_policy_attachment" "main" {
+  role       = aws_iam_role.main.name
+  policy_arn = aws_iam_policy.main.arn
 }

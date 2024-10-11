@@ -158,3 +158,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "use_default_ingress" {
+  description = "Unrestricted ingress from within VPC to the NAT instance"
+  type        = bool
+  default     = true
+}
+
+variable "use_default_egress" {
+  description = "Unrestricted egress from the NAT instance to the public internet"
+  type        = bool
+  default     = true
+}

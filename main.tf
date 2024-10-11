@@ -19,16 +19,20 @@ resource "aws_security_group" "main" {
   description = "Used in ${var.name} instance of fck-nat in subnet ${var.subnet_id}"
   vpc_id      = data.aws_vpc.main.id
 
-  ingress {
-    description = "Unrestricted ingress from within VPC"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = data.aws_vpc.main.cidr_block_associations[*].cidr_block
+  dynamic "ingress" {
+    for_each = var.use_default_ingress ? [1] : []
+
+    content {
+      description = "Unrestricted ingress from within VPC"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = data.aws_vpc.main.cidr_block_associations[*].cidr_block
+    }
   }
 
   dynamic "ingress" {
-    for_each = var.use_ssh && (length(var.ssh_cidr_blocks.ipv4) > 0 || length(var.ssh_cidr_blocks.ipv6) > 0) ? [1] : [] #  
+    for_each = var.use_ssh && (length(var.ssh_cidr_blocks.ipv4) > 0 || length(var.ssh_cidr_blocks.ipv6) > 0) ? [1] : [] #
 
     content {
       description      = "SSH access"
@@ -40,13 +44,17 @@ resource "aws_security_group" "main" {
     }
   }
 
-  egress {
-    description      = "Unrestricted egress"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+  dynamic "egress" {
+    for_each = var.use_default_egress ? [1] : []
+
+    content {
+      description      = "Unrestricted egress to the public internet"
+      from_port        = 0
+      to_port          = 0
+      protocol         = "-1"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
   }
 
   tags = merge({ Name = var.name }, var.tags)

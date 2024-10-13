@@ -96,6 +96,8 @@ module "fck-nat" {
 | <a name="input_use_spot_instances"></a> [use\_spot\_instances](#input\_use\_spot\_instances) | Whether or not to use spot instances for running the NAT instance | `bool` | `false` | no |
 | <a name="input_use_ssh"></a> [use\_ssh](#input\_use\_ssh) | Whether or not to enable SSH access to the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |
+| <a name="input_use_default_ingress"></a> [use\_default\_ingress](#input\_use\_default\_ingress) | Unrestricted ingress from within VPC to the NAT instance | `bool` | `true` | no |
+| <a name="input_use_default_egress"></a> [use\_default\_egress](#input\_use\_default\_egress) | Unrestricted egress from the NAT instance to the public internet | `bool` | `true` | no |
 
 ## Outputs
 

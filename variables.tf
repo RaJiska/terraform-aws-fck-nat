@@ -153,12 +153,12 @@ variable "ssh_cidr_blocks" {
   }
 }
 
-variable "destination_cidr_block" {
-  type    = string
-  default = "0.0.0.0/0"
+variable "destination_cidr_blocks" {
+  type    = list(string)
+  default = ["0.0.0.0/0"]
   validation {
-    condition     = can(cidrsubnet(var.destination_cidr_block, 0, 0))
-    error_message = "The value must be a valid CIDR block in CIDR notation (e.g., '192.168.0.0/16')."
+    condition     = all([for cidr in var.destination_cidr_blocks : can(cidrsubnet(cidr, 0, 0))])
+    error_message = "Each item must be a valid CIDR block in CIDR notation (e.g., '192.168.0.0/16')."
   }
 }
 

@@ -10,7 +10,7 @@ variable "vpc_id" {
 
 variable "subnet_id" {
   description = "Subnet ID to deploy the NAT instance into"
-  type        = string
+  type        = any
 }
 
 variable "update_route_table" {

@@ -2,25 +2,25 @@ data "aws_ami" "main" {
   count = var.ami_id != null ? 0 : 1
 
   most_recent = true
-  owners      = ["568608671756"]
+  owners = ["568608671756"]
 
   filter {
-    name   = "name"
+    name = "name"
     values = ["fck-nat-al2023-hvm-*"]
   }
 
   filter {
-    name   = "architecture"
+    name = "architecture"
     values = [local.is_arm ? "arm64" : "x86_64"]
   }
 
   filter {
-    name   = "root-device-type"
+    name = "root-device-type"
     values = ["ebs"]
   }
 
   filter {
-    name   = "virtualization-type"
+    name = "virtualization-type"
     values = ["hvm"]
   }
 }
@@ -29,6 +29,30 @@ data "aws_arn" "ssm_param" {
   count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn != null ? 1 : 0
 
   arn = var.cloudwatch_agent_configuration_param_arn
+}
+
+data "cloudinit_config" "this" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/x-shellscript"
+    content = templatefile("${path.module}/templates/user_data.sh", {
+      TERRAFORM_ENI_ID                 = aws_network_interface.main.id
+      TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
+      TERRAFORM_CWAGENT_ENABLED        = var.use_cloudwatch_agent ? "true" : ""
+      TERRAFORM_CWAGENT_CFG_PARAM_NAME = local.cwagent_param_name != null ? local.cwagent_param_name : ""
+    })
+  }
+
+  dynamic part {
+    for_each = var.cloud_init_parts
+
+    content {
+      content_type = part.value["content_type"]
+      content      = part.value["content"]
+    }
+  }
 }
 
 resource "aws_launch_template" "main" {
@@ -78,12 +102,7 @@ resource "aws_launch_template" "main" {
     }
   }
 
-  user_data = base64encode(templatefile("${path.module}/templates/user_data.sh", {
-    TERRAFORM_ENI_ID                 = aws_network_interface.main.id
-    TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
-    TERRAFORM_CWAGENT_ENABLED        = var.use_cloudwatch_agent ? "true" : ""
-    TERRAFORM_CWAGENT_CFG_PARAM_NAME = local.cwagent_param_name != null ? local.cwagent_param_name : ""
-  }))
+  user_data = data.cloudinit_config.this.rendered
 
   # Enforce IMDSv2
   metadata_options {

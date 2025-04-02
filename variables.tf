@@ -33,8 +33,8 @@ variable "route_table_id" {
 
 variable "route_tables_ids" {
   description = "Route tables to update. Only valid if update_route_tables is true"
-  type        = map(string)
-  default     = {}
+  type = map(string)
+  default = {}
 }
 
 variable "encryption" {
@@ -75,8 +75,8 @@ variable "ebs_root_volume_size" {
 
 variable "eip_allocation_ids" {
   description = "EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation."
-  type        = list(string)
-  default     = []
+  type = list(string)
+  default = []
 }
 
 variable "attach_ssm_policy" {
@@ -100,9 +100,9 @@ variable "use_cloudwatch_agent" {
 variable "cloudwatch_agent_configuration" {
   description = "CloudWatch configuration for the NAT instance"
   type = object({
-    namespace           = optional(string, "fck-nat"),
+    namespace = optional(string, "fck-nat"),
     collection_interval = optional(number, 60),
-    endpoint_override   = optional(string, "")
+    endpoint_override = optional(string, "")
   })
   default = {
     namespace           = "fck-nat"
@@ -125,8 +125,8 @@ variable "use_default_security_group" {
 
 variable "additional_security_group_ids" {
   description = "A list of identifiers of security groups to be added for the NAT instance"
-  type        = list(string)
-  default     = []
+  type = list(string)
+  default = []
 }
 
 variable "use_ssh" {
@@ -155,6 +155,15 @@ variable "ssh_cidr_blocks" {
 
 variable "tags" {
   description = "Tags to apply to resources created within the module"
-  type        = map(string)
-  default     = {}
+  type = map(string)
+  default = {}
+}
+
+variable "cloud_init_parts" {
+  description = "Cloud-init parts to add to the user data script"
+  type = list(object({
+    content      = string
+    content_type = string
+  }))
+  default = []
 }

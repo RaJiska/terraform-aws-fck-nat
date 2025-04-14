@@ -2,25 +2,25 @@ data "aws_ami" "main" {
   count = var.ami_id != null ? 0 : 1
 
   most_recent = true
-  owners = ["568608671756"]
+  owners      = ["568608671756"]
 
   filter {
-    name = "name"
+    name   = "name"
     values = ["fck-nat-al2023-hvm-*"]
   }
 
   filter {
-    name = "architecture"
+    name   = "architecture"
     values = [local.is_arm ? "arm64" : "x86_64"]
   }
 
   filter {
-    name = "root-device-type"
+    name   = "root-device-type"
     values = ["ebs"]
   }
 
   filter {
-    name = "virtualization-type"
+    name   = "virtualization-type"
     values = ["hvm"]
   }
 }

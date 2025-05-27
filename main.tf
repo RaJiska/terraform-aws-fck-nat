@@ -4,6 +4,16 @@ locals {
   cwagent_param_arn  = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? var.cloudwatch_agent_configuration_param_arn : aws_ssm_parameter.cloudwatch_agent_config[0].arn : null
   cwagent_param_name = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? split("/", data.aws_arn.ssm_param[0].resource)[1] : aws_ssm_parameter.cloudwatch_agent_config[0].name : null
   security_groups    = concat(var.use_default_security_group ? [aws_security_group.main.id] : [], var.additional_security_group_ids)
+  route_table_ids    = var.update_route_table ? var.route_tables_ids : {}
+
+  route_entries = flatten([
+    for rt_id in local.route_table_ids : [
+      for cidr in var.destination_cidr_blocks : {
+        route_table_id         = rt_id
+        destination_cidr_block = cidr
+      }
+    ]
+  ])
 }
 
 data "aws_region" "current" {}
@@ -62,10 +72,12 @@ resource "aws_network_interface" "main" {
 }
 
 resource "aws_route" "main" {
-  for_each = var.update_route_tables || var.update_route_table ? merge(var.route_tables_ids, var.route_table_id != null ? { RESERVED_FKC_NAT = var.route_table_id } : {}) : {}
-
-  route_table_id         = each.value
-  destination_cidr_block = "0.0.0.0/0"
+  for_each = {
+    for idx, route in local.route_entries :
+    "${route.route_table_id}_${replace(route.destination_cidr_block, "/", "-")}" => route
+  }
+  route_table_id         = each.value.route_table_id
+  destination_cidr_block = each.value.destination_cidr_block
   network_interface_id   = aws_network_interface.main.id
 }
 

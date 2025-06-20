@@ -33,6 +33,16 @@ resource "aws_autoscaling_group" "main" {
     }
   }
 
+  dynamic "tag" {
+    for_each = var.propagated_tags
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
+
   enabled_metrics = [
     "GroupMinSize",
     "GroupMaxSize",

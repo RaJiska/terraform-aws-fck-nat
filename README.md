@@ -83,6 +83,7 @@ module "fck-nat" {
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the NAT instance | `string` | `"t4g.micro"` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
+| <a name="input_propagated_tags"></a> [propagated\_tags](#input\_propagated\_tags) | Tags to propagate to the launched NAT instance(s) | `map(string)` | `{}` | no |
 | <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | Deprecated. Use route\_tables\_ids instead | `string` | `null` | no |
 | <a name="input_route_tables_ids"></a> [route\_tables\_ids](#input\_route\_tables\_ids) | Route tables to update. Only valid if update\_route\_tables is true | `map(string)` | `{}` | no |
 | <a name="input_ssh_cidr_blocks"></a> [ssh\_cidr\_blocks](#input\_ssh\_cidr\_blocks) | CIDR blocks to allow SSH access to the NAT instance from | <pre>object({<br/>    ipv4 = optional(list(string), [])<br/>    ipv6 = optional(list(string), [])<br/>  })</pre> | <pre>{<br/>  "ipv4": [],<br/>  "ipv6": []<br/>}</pre> | no |

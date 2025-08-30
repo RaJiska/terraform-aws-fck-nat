@@ -37,7 +37,6 @@ resource "aws_launch_template" "main" {
   image_id      = local.ami_id
   instance_type = var.instance_type
   key_name      = var.ssh_key_name
-  credit_specification { cpu_credits = var.credit_specification }
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -77,6 +76,10 @@ resource "aws_launch_template" "main" {
 
       tags = merge({ Name = var.name }, var.tags)
     }
+  }
+
+  credit_specification {
+    cpu_credits = var.credit_specification
   }
 
   user_data = base64encode(templatefile("${path.module}/templates/user_data.sh", {

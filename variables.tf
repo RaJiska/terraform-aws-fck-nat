@@ -85,6 +85,12 @@ variable "attach_ssm_policy" {
   default     = true
 }
 
+variable "credit_specification" {
+  description = "Customize the credit specification of the instance"
+  type        = string
+  default     = null
+}
+
 variable "use_spot_instances" {
   description = "Whether or not to use spot instances for running the NAT instance"
   type        = bool

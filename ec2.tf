@@ -78,6 +78,10 @@ resource "aws_launch_template" "main" {
     }
   }
 
+  credit_specification {
+    cpu_credits = var.credit_specification
+  }
+
   user_data = base64encode(templatefile("${path.module}/templates/user_data.sh", {
     TERRAFORM_ENI_ID                 = aws_network_interface.main.id
     TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""

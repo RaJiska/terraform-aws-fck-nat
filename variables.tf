@@ -164,3 +164,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "propagated_tags" {
+  description = "Tags to propagate to the launched NAT instance(s)"
+  type        = map(string)
+  default     = {}
+}

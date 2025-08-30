@@ -14,7 +14,8 @@ data "aws_vpc" "main" {
 }
 
 resource "aws_security_group" "main" {
-  #checkov:skip=CKV_AWS_24:False positive from Checkov, ingress CIDR blocks on port 22 default to "[]"
+  #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
+  #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
   name        = var.name
   description = "Used in ${var.name} instance of fck-nat in subnet ${var.subnet_id}"
   vpc_id      = data.aws_vpc.main.id

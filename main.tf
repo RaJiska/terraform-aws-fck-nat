@@ -57,7 +57,7 @@ resource "aws_security_group" "main" {
 resource "aws_network_interface" "main" {
   description       = "${var.name} static private ENI"
   subnet_id         = var.subnet_id
-  security_groups   = [aws_security_group.main.id]
+  security_groups   = local.security_groups
   source_dest_check = false
 
   tags = merge({ Name = var.name }, var.tags)

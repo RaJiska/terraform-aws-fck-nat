@@ -164,3 +164,12 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "cloud_init_parts" {
+  description = "Cloud-init parts to add to the user data script"
+  type = list(object({
+    content      = string
+    content_type = string
+  }))
+  default = []
+}

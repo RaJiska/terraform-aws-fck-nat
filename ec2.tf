@@ -104,6 +104,10 @@ resource "aws_launch_template" "main" {
 
   user_data = data.cloudinit_config.this.rendered
 
+  credit_specification {
+    cpu_credits = var.credit_specification
+  }
+
   # Enforce IMDSv2
   metadata_options {
     http_endpoint = "enabled"

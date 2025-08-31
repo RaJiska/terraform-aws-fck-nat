@@ -76,6 +76,7 @@ module "fck-nat" {
 | <a name="input_attach_ssm_policy"></a> [attach\_ssm\_policy](#input\_attach\_ssm\_policy) | Whether to attach the minimum required IAM permissions to connect to the instance via SSM. | `bool` | `true` | no |
 | <a name="input_cloudwatch_agent_configuration"></a> [cloudwatch\_agent\_configuration](#input\_cloudwatch\_agent\_configuration) | CloudWatch configuration for the NAT instance | <pre>object({<br/>    namespace           = optional(string, "fck-nat"),<br/>    collection_interval = optional(number, 60),<br/>    endpoint_override   = optional(string, "")<br/>  })</pre> | <pre>{<br/>  "collection_interval": 60,<br/>  "endpoint_override": "",<br/>  "namespace": "fck-nat"<br/>}</pre> | no |
 | <a name="input_cloudwatch_agent_configuration_param_arn"></a> [cloudwatch\_agent\_configuration\_param\_arn](#input\_cloudwatch\_agent\_configuration\_param\_arn) | ARN of the SSM parameter containing the CloudWatch agent configuration. If none provided, creates one | `string` | `null` | no |
+| <a name="input_credit_specification"></a> [credit\_specification](#input\_credit\_specification) | Customize the credit specification of the instance | `string` | `null` | no |
 | <a name="input_ebs_root_volume_size"></a> [ebs\_root\_volume\_size](#input\_ebs\_root\_volume\_size) | Size of the EBS root volume in GB | `number` | `8` | no |
 | <a name="input_eip_allocation_ids"></a> [eip\_allocation\_ids](#input\_eip\_allocation\_ids) | EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation. | `list(string)` | `[]` | no |
 | <a name="input_encryption"></a> [encryption](#input\_encryption) | Whether or not to encrypt the EBS volume | `bool` | `true` | no |
@@ -116,6 +117,7 @@ module "fck-nat" {
 | <a name="output_launch_template_id"></a> [launch\_template\_id](#output\_launch\_template\_id) | The ID of the launch template used to spawn fck-nat instances |
 | <a name="output_name"></a> [name](#output\_name) | Name used for resources created within the module |
 | <a name="output_role_arn"></a> [role\_arn](#output\_role\_arn) | The ARN of the role used by the fck-nat instance profile |
+| <a name="output_role_name"></a> [role\_name](#output\_role\_name) | The ARN of the role used by the fck-nat instance profile |
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | Deprecated. The ID of the security group used by fck-nat ENIs |
 | <a name="output_security_group_ids"></a> [security\_group\_ids](#output\_security\_group\_ids) | List of security group IDs used by fck-nat ENIs |
 | <a name="output_subnet_id"></a> [subnet\_id](#output\_subnet\_id) | Subnet ID to which the fck-nat instance is deployed into |

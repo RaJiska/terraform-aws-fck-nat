@@ -45,7 +45,7 @@ data "cloudinit_config" "this" {
     })
   }
 
-  dynamic part {
+  dynamic "part" {
     for_each = var.cloud_init_parts
 
     content {

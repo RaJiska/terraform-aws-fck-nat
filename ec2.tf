@@ -59,7 +59,7 @@ resource "aws_launch_template" "main" {
   #checkov:skip=CKV_AWS_88:NAT instances must have a public IP.
   name          = var.name
   image_id      = local.ami_id
-  instance_type = var.instance_type
+  instance_type = length(var.instance_types) > 0 ? var.instance_types[0] : null
   key_name      = var.ssh_key_name
 
   block_device_mappings {
@@ -82,14 +82,6 @@ resource "aws_launch_template" "main" {
     subnet_id                   = var.subnet_id
     associate_public_ip_address = true
     security_groups             = local.security_groups
-  }
-
-  dynamic "instance_market_options" {
-    for_each = var.use_spot_instances ? ["x"] : []
-
-    content {
-      market_type = "spot"
-    }
   }
 
   dynamic "tag_specifications" {

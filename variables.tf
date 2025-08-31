@@ -55,10 +55,10 @@ variable "ha_mode" {
   default     = true
 }
 
-variable "instance_type" {
-  description = "Instance type to use for the NAT instance"
-  type        = string
-  default     = "t4g.micro"
+variable "instance_types" {
+  description = "List of instance types to use for the NAT instance (ASG mixed instances policy)"
+  type        = list(string)
+  default     = ["t4g.nano"]
 }
 
 variable "ami_id" {

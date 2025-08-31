@@ -28,9 +28,9 @@ output "ha_mode" {
   value       = var.ha_mode
 }
 
-output "instance_type" {
-  description = "Instance type used for the fck-nat instance"
-  value       = aws_launch_template.main.instance_type
+output "instance_types" {
+  description = "Instance types used for the fck-nat instance (from the ASG mixed instances policy or launch template default)"
+  value       = length(var.instance_types) > 0 ? var.instance_types : [aws_launch_template.main.instance_type]
 }
 
 output "ami_id" {

@@ -55,6 +55,12 @@ variable "ha_mode" {
   default     = true
 }
 
+variable "ha_additional_instance_types" {
+  description = "Additional instance types used by autoscaling rebalancing when the primary instance is unavailable"
+  type        = list(string)
+  default     = ["t4g.small"]
+}
+
 variable "instance_type" {
   description = "Instance type to use for the NAT instance"
   type        = string

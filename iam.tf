@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "main" {
     condition {
       test     = "StringEquals"
       variable = "ec2:ResourceTag/Name"
-      values   = [var.name]
+      values   = [local.instance_name]
     }
   }
 
@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "main" {
       condition {
         test     = "StringEquals"
         variable = "ec2:ResourceTag/Name"
-        values   = [var.name]
+        values   = [local.instance_name]
       }
     }
   }

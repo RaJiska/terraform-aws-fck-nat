@@ -1,36 +1,39 @@
-locals {
-  name     = "fck-nat-allazs"
-  vpc_cidr = "10.255.0.0/16"
-}
-
-data "aws_region" "current" {}
-
-data "aws_availability_zones" "azs" {
-  state = "available"
-  filter {
-    name   = "opt-in-status"
-    values = ["opt-in-not-required"]
-  }
-}
-
-module "fck-nat" {
-  source   = "../../"
-  for_each = toset(data.aws_availability_zones.azs.zone_ids)
-
-  name      = "${local.name}-${each.key}"
-  vpc_id    = aws_vpc.main.id
-  subnet_id = aws_subnet.public[each.key].id
-  # ha_mode              = true
-  # use_cloudwatch_agent = true
-  # use_spot_instances   = true
-  # instance_type        = "t4g.nano"
-
-  update_route_tables = true
+module "nat-instance-per-az" {
+  # checkov:skip=CKV_TF_1:Ensure Terraform module sources use a commit hash
+  # checkov:skip=CKV_TF_2:Ensure Terraform module sources use a tag with a version number
+  source               = "../.."
+  for_each             = { for k, v in data.aws_availability_zones.azs.zone_ids : k => v if var.deploy_nat_per_az }
+  name                 = "${var.name}-${each.value}"
+  vpc_id               = aws_vpc.main.id
+  subnet_id            = aws_subnet.public[each.value].id
+  use_cloudwatch_agent = var.use_cloudwatch_agent
+  instance_type        = var.instance_type
+  ha_mode              = var.ha_mode
+  use_spot_instances   = var.use_spot_instances # low availability in some AZs
+  update_route_tables  = true
   route_tables_ids = {
-    private = aws_route_table.private[each.key].id
+    private = aws_route_table.private[each.value].id
   }
-
   tags = {
-    Name = "${local.name}-${each.key}"
+    Name = "nat-${var.name}-${each.value}"
+  }
+}
+
+module "single-nat-instance" {
+  # checkov:skip=CKV_TF_1:Ensure Terraform module sources use a commit hash
+  # checkov:skip=CKV_TF_2:Ensure Terraform module sources use a tag with a version number
+  source               = "../.."
+  count                = var.deploy_single_nat ? 1 : 0
+  name                 = var.name
+  vpc_id               = aws_vpc.main.id
+  subnet_id            = aws_subnet.public[data.aws_availability_zones.azs.zone_ids[0]].id
+  use_cloudwatch_agent = var.use_cloudwatch_agent
+  instance_type        = var.instance_type
+  ha_mode              = var.ha_mode
+  use_spot_instances   = var.use_spot_instances # low availability in some AZs
+  update_route_tables  = true
+  route_tables_ids     = { for k in data.aws_availability_zones.azs.zone_ids[*] : k => aws_route_table.private[k].id }
+  tags = {
+    Name = "nat-${var.name}"
   }
 }

@@ -3,7 +3,7 @@ module "nat-instance-per-az" {
   # checkov:skip=CKV_TF_2:Ensure Terraform module sources use a tag with a version number
   source               = "../.."
   for_each             = { for k, v in data.aws_availability_zones.azs.zone_ids : k => v if var.deploy_nat_per_az }
-  name                 = "${var.name}-${each.value}"
+  name                 = "nat-${var.name}-${each.value}"
   vpc_id               = aws_vpc.main.id
   subnet_id            = aws_subnet.public[each.value].id
   use_cloudwatch_agent = var.use_cloudwatch_agent
@@ -24,7 +24,7 @@ module "single-nat-instance" {
   # checkov:skip=CKV_TF_2:Ensure Terraform module sources use a tag with a version number
   source               = "../.."
   count                = var.deploy_single_nat ? 1 : 0
-  name                 = var.name
+  name                 = "nat-${var.name}"
   vpc_id               = aws_vpc.main.id
   subnet_id            = aws_subnet.public[data.aws_availability_zones.azs.zone_ids[0]].id
   use_cloudwatch_agent = var.use_cloudwatch_agent

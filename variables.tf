@@ -3,6 +3,12 @@ variable "name" {
   type        = string
 }
 
+variable "region" {
+  description = "Region in which to create resources, defaults to provider region if not set"
+  type = string
+  default = null
+}
+
 variable "vpc_id" {
   description = "VPC ID to deploy the NAT instance into"
   type        = string

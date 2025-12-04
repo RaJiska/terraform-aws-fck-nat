@@ -33,6 +33,17 @@ resource "aws_autoscaling_group" "main" {
     }
   }
 
+  dynamic "instance_refresh" {
+    for_each = var.auto_rollout ? [true] : []
+    content {
+      strategy = "Rolling"
+      preferences {
+        # network interface needs to be freed, before it can be attached to a new instance
+        min_healthy_percentage = 0
+      }
+    }
+  }
+
   enabled_metrics = [
     "GroupMinSize",
     "GroupMaxSize",

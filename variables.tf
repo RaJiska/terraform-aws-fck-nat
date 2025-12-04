@@ -55,6 +55,12 @@ variable "ha_mode" {
   default     = true
 }
 
+variable "auto_rollout" {
+  description = "Whether to automatically rollout configuration changes to the launch template (like AMI and cloud init)"
+  type        = bool
+  default     = false # backward compatible with v1
+}
+
 variable "instance_type" {
   description = "Instance type to use for the NAT instance"
   type        = string

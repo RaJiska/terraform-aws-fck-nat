@@ -1,11 +1,15 @@
 resource "aws_iam_instance_profile" "main" {
+  count = var.iam_instance_profile_name == null ? 1 : 0
+
   name = var.name
-  role = aws_iam_role.main.name
+  role = aws_iam_role.main[0].name
 
   tags = var.tags
 }
 
 data "aws_iam_policy_document" "main" {
+  count = var.iam_instance_profile_name == null ? 1 : 0
+
   statement {
     sid    = "ManageNetworkInterface"
     effect = "Allow"
@@ -116,12 +120,16 @@ data "aws_iam_policy_document" "main" {
 }
 
 resource "aws_iam_policy" "main" {
+  count = var.iam_instance_profile_name == null ? 1 : 0
+
   name   = var.name
-  policy = data.aws_iam_policy_document.main.json
+  policy = data.aws_iam_policy_document.main[0].json
   tags   = var.tags
 }
 
 data "aws_iam_policy_document" "instance_assume_role_policy" {
+  count = var.iam_instance_profile_name == null ? 1 : 0
+
   statement {
     actions = ["sts:AssumeRole"]
     principals {
@@ -133,12 +141,16 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
 }
 
 resource "aws_iam_role" "main" {
+  count = var.iam_instance_profile_name == null ? 1 : 0
+
   name               = var.name
-  assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policy.json
+  assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policy[0].json
   tags               = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "main" {
-  role       = aws_iam_role.main.name
-  policy_arn = aws_iam_policy.main.arn
+  count = var.iam_instance_profile_name == null ? 1 : 0
+
+  role       = aws_iam_role.main[0].name
+  policy_arn = aws_iam_policy.main[0].arn
 }

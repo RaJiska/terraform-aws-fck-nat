@@ -74,7 +74,7 @@ resource "aws_launch_template" "main" {
   }
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.main.name
+    name = var.iam_instance_profile_name != null ? var.iam_instance_profile_name : aws_iam_instance_profile.main[0].name
   }
 
   network_interfaces {

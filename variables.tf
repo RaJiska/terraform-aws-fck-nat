@@ -173,3 +173,9 @@ variable "cloud_init_parts" {
   }))
   default = []
 }
+
+variable "iam_instance_profile_name" {
+  description = "Name of an existing IAM instance profile to attach to the NAT instance. When provided, the module will not create any IAM roles, policies, or instance profiles."
+  type        = string
+  default     = null
+}

@@ -59,18 +59,18 @@ output "security_group_ids" {
 }
 
 output "role_arn" {
-  description = "The ARN of the role used by the fck-nat instance profile"
-  value       = aws_iam_role.main.arn
+  description = "The ARN of the role used by the fck-nat instance profile. Null when iam_instance_profile_name is provided."
+  value       = var.iam_instance_profile_name == null ? aws_iam_role.main[0].arn : null
 }
 
 output "role_name" {
-  description = "The ARN of the role used by the fck-nat instance profile"
-  value       = aws_iam_role.main.name
+  description = "The name of the role used by the fck-nat instance profile. Null when iam_instance_profile_name is provided."
+  value       = var.iam_instance_profile_name == null ? aws_iam_role.main[0].name : null
 }
 
 output "instance_profile_arn" {
-  description = "The ARN of the instance profile used by the fck-nat instance"
-  value       = aws_iam_instance_profile.main.arn
+  description = "The ARN of the instance profile used by the fck-nat instance. Null when iam_instance_profile_name is provided."
+  value       = var.iam_instance_profile_name == null ? aws_iam_instance_profile.main[0].arn : null
 }
 
 output "launch_template_id" {

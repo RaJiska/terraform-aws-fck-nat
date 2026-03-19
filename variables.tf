@@ -97,6 +97,12 @@ variable "use_spot_instances" {
   default     = false
 }
 
+variable "use_nat64" {
+  description = "Whether or not to enable NAT64 support. When enabled, uses the fck-nat NAT64 AMI variant, adds a 64:ff9b::/96 route, and allows IPv6 VPC ingress"
+  type        = bool
+  default     = false
+}
+
 variable "use_cloudwatch_agent" {
   description = "Whether or not to enable CloudWatch agent for the NAT instance"
   type        = bool

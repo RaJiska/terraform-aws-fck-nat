@@ -15,50 +15,89 @@ data "aws_vpc" "main" {
 }
 
 resource "aws_security_group" "main" {
-  #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
-  #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
   name        = var.name
   description = "Used in ${var.name} instance of fck-nat in subnet ${var.subnet_id}"
   vpc_id      = data.aws_vpc.main.id
 
-  ingress {
-    description = "Unrestricted ingress from within VPC"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = data.aws_vpc.main.cidr_block_associations[*].cidr_block
-  }
-
-  dynamic "ingress" {
-    for_each = var.use_ssh && (length(var.ssh_cidr_blocks.ipv4) > 0 || length(var.ssh_cidr_blocks.ipv6) > 0) ? [1] : [] #  
-
-    content {
-      description      = "SSH access"
-      from_port        = 22
-      to_port          = 22
-      protocol         = "tcp"
-      cidr_blocks      = var.ssh_cidr_blocks.ipv4
-      ipv6_cidr_blocks = var.ssh_cidr_blocks.ipv6
-    }
-  }
-
-  egress {
-    description      = "Unrestricted egress"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   tags = merge({ Name = var.name }, var.tags)
 }
 
+resource "aws_vpc_security_group_ingress_rule" "vpc" {
+  for_each = toset(data.aws_vpc.main.cidr_block_associations[*].cidr_block)
+
+  security_group_id = aws_security_group.main.id
+  description       = "Unrestricted ingress from within VPC"
+  cidr_ipv4         = each.value
+  ip_protocol       = "-1"
+
+  tags = merge({ Name = "${var.name}-vpc-${each.value}" }, var.tags)
+}
+
+resource "aws_vpc_security_group_ingress_rule" "vpc_ipv6" {
+  for_each = var.use_nat64 && data.aws_vpc.main.ipv6_cidr_block != "" ? toset([data.aws_vpc.main.ipv6_cidr_block]) : toset([])
+
+  security_group_id = aws_security_group.main.id
+  description       = "Unrestricted IPv6 ingress from within VPC"
+  cidr_ipv6         = each.value
+  ip_protocol       = "-1"
+
+  tags = merge({ Name = "${var.name}-vpc-ipv6-${each.value}" }, var.tags)
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ssh_ipv4" {
+  #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
+  for_each = var.use_ssh ? toset(var.ssh_cidr_blocks.ipv4) : toset([])
+
+  security_group_id = aws_security_group.main.id
+  description       = "SSH access"
+  cidr_ipv4         = each.value
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+
+  tags = merge({ Name = "${var.name}-ssh-${each.value}" }, var.tags)
+}
+
+resource "aws_vpc_security_group_ingress_rule" "ssh_ipv6" {
+  #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
+  for_each = var.use_ssh ? toset(var.ssh_cidr_blocks.ipv6) : toset([])
+
+  security_group_id = aws_security_group.main.id
+  description       = "SSH access"
+  cidr_ipv6         = each.value
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+
+  tags = merge({ Name = "${var.name}-ssh-${each.value}" }, var.tags)
+}
+
+resource "aws_vpc_security_group_egress_rule" "ipv4" {
+  #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
+  security_group_id = aws_security_group.main.id
+  description       = "Unrestricted egress"
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+
+  tags = merge({ Name = "${var.name}-egress-ipv4" }, var.tags)
+}
+
+resource "aws_vpc_security_group_egress_rule" "ipv6" {
+  #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
+  security_group_id = aws_security_group.main.id
+  description       = "Unrestricted egress"
+  cidr_ipv6         = "::/0"
+  ip_protocol       = "-1"
+
+  tags = merge({ Name = "${var.name}-egress-ipv6" }, var.tags)
+}
+
 resource "aws_network_interface" "main" {
-  description       = "${var.name} static private ENI"
-  subnet_id         = var.subnet_id
-  security_groups   = [aws_security_group.main.id]
-  source_dest_check = false
+  description        = "${var.name} static private ENI"
+  subnet_id          = var.subnet_id
+  security_groups    = [aws_security_group.main.id]
+  source_dest_check  = false
+  ipv6_address_count = var.use_nat64 ? 1 : null
 
   tags = merge({ Name = var.name }, var.tags)
 }
@@ -69,6 +108,14 @@ resource "aws_route" "main" {
   route_table_id         = each.value
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = aws_network_interface.main.id
+}
+
+resource "aws_route" "nat64" {
+  for_each = var.use_nat64 && (var.update_route_tables || var.update_route_table) ? merge(var.route_tables_ids, var.route_table_id != null ? { RESERVED_FKC_NAT = var.route_table_id } : {}) : {}
+
+  route_table_id              = each.value
+  destination_ipv6_cidr_block = "64:ff9b::/96"
+  network_interface_id        = aws_network_interface.main.id
 }
 
 resource "aws_ssm_parameter" "cloudwatch_agent_config" {

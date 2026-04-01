@@ -11,7 +11,7 @@
     %{~ endif ~}
     "metrics_collected": {
       "net": {
-        "resources": ["eth0", "eth1"],
+        "resources": ["*"],
         "measurement": [
           { "name": "bytes_recv", "rename": "BytesIn",  "unit": "Bytes" },
           { "name": "bytes_sent", "rename": "BytesOut",  "unit": "Bytes" },
@@ -29,7 +29,6 @@
         ]
       },
       "ethtool": {
-        "interface_include": ["eth0", "eth1"],
         "metrics_include": [
           "bw_in_allowance_exceeded",
           "bw_out_allowance_exceeded",

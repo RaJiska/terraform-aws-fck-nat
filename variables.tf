@@ -91,6 +91,12 @@ variable "attach_ssm_policy" {
   default     = true
 }
 
+variable "credit_specification" {
+  description = "Customize the credit specification of the instance"
+  type        = string
+  default     = null
+}
+
 variable "use_spot_instances" {
   description = "Whether or not to use spot instances for running the NAT instance"
   type        = bool
@@ -141,8 +147,41 @@ variable "use_nat64" {
   default     = false
 }
 
+variable "use_ssh" {
+  description = "Whether or not to enable SSH access to the NAT instance"
+  type        = bool
+  default     = false
+}
+
+variable "ssh_key_name" {
+  description = "Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided"
+  type        = string
+  default     = null
+}
+
+variable "ssh_cidr_blocks" {
+  description = "CIDR blocks to allow SSH access to the NAT instance from"
+  type = object({
+    ipv4 = optional(list(string), [])
+    ipv6 = optional(list(string), [])
+  })
+  default = {
+    ipv4 = [],
+    ipv6 = []
+  }
+}
+
 variable "tags" {
   description = "Tags to apply to resources created within the module"
   type        = map(string)
   default     = {}
+}
+
+variable "cloud_init_parts" {
+  description = "Cloud-init parts to add to the user data script"
+  type = list(object({
+    content      = string
+    content_type = string
+  }))
+  default = []
 }

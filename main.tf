@@ -4,6 +4,7 @@ locals {
   cwagent_param_arn  = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? var.cloudwatch_agent_configuration_param_arn : aws_ssm_parameter.cloudwatch_agent_config[0].arn : null
   cwagent_param_name = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? split("/", data.aws_arn.ssm_param[0].resource)[1] : aws_ssm_parameter.cloudwatch_agent_config[0].name : null
   security_groups    = concat(var.use_default_security_group ? [aws_security_group.main.id] : [], var.additional_security_group_ids)
+  instance_name      = lookup(var.tags, "Name", var.name)
 }
 
 data "aws_region" "current" {}
@@ -14,6 +15,8 @@ data "aws_vpc" "main" {
 }
 
 resource "aws_security_group" "main" {
+  #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
+  #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
   name        = var.name
   description = "Used in ${var.name} instance of fck-nat in subnet ${var.subnet_id}"
   vpc_id      = data.aws_vpc.main.id
@@ -27,6 +30,19 @@ resource "aws_security_group" "main" {
     ipv6_cidr_blocks = var.use_nat64 ? ["${data.aws_vpc.main.ipv6_cidr_block}"] : null
   }
 
+  dynamic "ingress" {
+    for_each = var.use_ssh && (length(var.ssh_cidr_blocks.ipv4) > 0 || length(var.ssh_cidr_blocks.ipv6) > 0) ? [1] : [] #  
+
+    content {
+      description      = "SSH access"
+      from_port        = 22
+      to_port          = 22
+      protocol         = "tcp"
+      cidr_blocks      = var.ssh_cidr_blocks.ipv4
+      ipv6_cidr_blocks = var.ssh_cidr_blocks.ipv6
+    }
+  }
+
   egress {
     description      = "Unrestricted egress"
     from_port        = 0
@@ -36,9 +52,7 @@ resource "aws_security_group" "main" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = merge(var.tags, {
-    Name = var.name
-  })
+  tags = merge({ Name = var.name }, var.tags)
 }
 
 resource "aws_network_interface" "main" {
@@ -48,9 +62,7 @@ resource "aws_network_interface" "main" {
   source_dest_check  = false
   ipv6_address_count = var.use_nat64 ? 1 : null
 
-  tags = merge(var.tags, {
-    Name = var.name
-  })
+  tags = merge({ Name = var.name }, var.tags)
 }
 
 resource "aws_route" "main" {

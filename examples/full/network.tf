@@ -12,8 +12,8 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(local.vpc_cidr, 4, 0)
-  availability_zone = "${data.aws_region.current.name}a"
   ipv6_cidr_block   = local.ipv6_support ? cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0) : null
+  availability_zone = "${data.aws_region.current.region}a"
 
   tags = {
     Name = "${local.name}-public"
@@ -60,8 +60,8 @@ resource "aws_route_table_association" "public" {
 resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(local.vpc_cidr, 4, 1)
-  availability_zone = "${data.aws_region.current.name}a"
   ipv6_cidr_block   = local.ipv6_support ? cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1) : null
+  availability_zone = "${data.aws_region.current.region}a"
 
   tags = {
     Name = "${local.name}-private"

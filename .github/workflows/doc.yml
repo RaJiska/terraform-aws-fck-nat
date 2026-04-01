@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'output.tf'
+      - 'variables.tf'
+      - 'docs/**'
 permissions:
   contents: write
 jobs:

@@ -63,6 +63,11 @@ output "role_arn" {
   value       = aws_iam_role.main.arn
 }
 
+output "role_name" {
+  description = "The ARN of the role used by the fck-nat instance profile"
+  value       = aws_iam_role.main.name
+}
+
 output "instance_profile_arn" {
   description = "The ARN of the instance profile used by the fck-nat instance"
   value       = aws_iam_instance_profile.main.arn
@@ -76,6 +81,11 @@ output "launch_template_id" {
 output "instance_arn" {
   description = "The ARN of the fck-nat instance if running in non-HA mode"
   value       = var.ha_mode ? null : aws_instance.main[0].arn
+}
+
+output "instance_public_ip" {
+  description = "The public IP address of the fck-nat instance if running in non-HA mode"
+  value       = var.ha_mode ? null : aws_instance.main[0].public_ip
 }
 
 output "autoscaling_group_arn" {

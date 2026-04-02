@@ -10,7 +10,7 @@ resource "aws_autoscaling_group" "main" {
 
   launch_template {
     id      = aws_launch_template.main.id
-    version = "$Latest"
+    version = aws_launch_template.main.latest_version
   }
 
   dynamic "tag" {
@@ -30,6 +30,17 @@ resource "aws_autoscaling_group" "main" {
       key                 = tag.key
       value               = tag.value
       propagate_at_launch = false
+    }
+  }
+
+  dynamic "instance_refresh" {
+    for_each = var.auto_rollout ? [true] : []
+    content {
+      strategy = "Rolling"
+      preferences {
+        # network interface needs to be freed, before it can be attached to a new instance
+        min_healthy_percentage = 0
+      }
     }
   }
 

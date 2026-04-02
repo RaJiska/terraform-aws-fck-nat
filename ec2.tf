@@ -124,7 +124,7 @@ resource "aws_instance" "main" {
 
   launch_template {
     id      = aws_launch_template.main.id
-    version = "$Latest"
+    version = var.auto_rollout ? aws_launch_template.main.latest_version : "$Latest"
   }
 
   tags = var.tags

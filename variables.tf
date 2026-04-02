@@ -43,6 +43,12 @@ variable "route_tables_ids" {
   default     = {}
 }
 
+variable "route_tables6_ids" {
+  description = "Route tables to update for IPv6. Only valid if update_route_tables and use_nat64 are true"
+  type        = map(string)
+  default     = {}
+}
+
 variable "encryption" {
   description = "Whether or not to encrypt the EBS volume"
   type        = bool
@@ -59,6 +65,12 @@ variable "ha_mode" {
   description = "Whether or not high-availability mode should be enabled via autoscaling group"
   type        = bool
   default     = true
+}
+
+variable "auto_rollout" {
+  description = "Whether to automatically rollout configuration changes to the launch template (like AMI and cloud init)"
+  type        = bool
+  default     = false # backward compatible with v1
 }
 
 variable "instance_type" {
@@ -139,6 +151,12 @@ variable "additional_security_group_ids" {
   description = "A list of identifiers of security groups to be added for the NAT instance"
   type        = list(string)
   default     = []
+}
+
+variable "use_nat64" {
+  description = "Whether or not to enable NAT64 on the NAT instance. Your VPC and at least the public subnet this NAT instance is deployed into must support IPv6"
+  type        = bool
+  default     = false
 }
 
 variable "use_ssh" {

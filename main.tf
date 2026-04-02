@@ -27,11 +27,12 @@ resource "aws_security_group" "main" {
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
-    description = "Unrestricted ingress from within VPC"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = data.aws_vpc.main.cidr_block_associations[*].cidr_block
+    description      = "Unrestricted ingress from within VPC"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = data.aws_vpc.main.cidr_block_associations[*].cidr_block
+    ipv6_cidr_blocks = var.use_nat64 ? ["${data.aws_vpc.main.ipv6_cidr_block}"] : null
   }
 
   dynamic "ingress" {
@@ -60,11 +61,19 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_network_interface" "main" {
+<<<<<<< aws-region-param
   region = var.region
   description       = "${var.name} static private ENI"
   subnet_id         = var.subnet_id
   security_groups   = [aws_security_group.main.id]
   source_dest_check = false
+=======
+  description        = "${var.name} static private ENI"
+  subnet_id          = var.subnet_id
+  security_groups    = [aws_security_group.main.id]
+  source_dest_check  = false
+  ipv6_address_count = var.use_nat64 ? 1 : null
+>>>>>>> main
 
   tags = merge({ Name = var.name }, var.tags)
 }
@@ -76,6 +85,14 @@ resource "aws_route" "main" {
   route_table_id         = each.value
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = aws_network_interface.main.id
+}
+
+resource "aws_route" "main_ipv6" {
+  for_each = (var.update_route_tables || var.update_route_table) && var.use_nat64 ? var.route_tables6_ids : {}
+
+  route_table_id              = each.value
+  destination_ipv6_cidr_block = "64:ff9b::/96"
+  network_interface_id        = aws_network_interface.main.id
 }
 
 resource "aws_ssm_parameter" "cloudwatch_agent_config" {

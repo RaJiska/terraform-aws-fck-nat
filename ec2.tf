@@ -1,6 +1,8 @@
 data "aws_ami" "main" {
   count = var.ami_id != null ? 0 : 1
 
+  region = var.region
+
   most_recent = true
   owners      = ["568608671756"]
 
@@ -57,6 +59,8 @@ data "cloudinit_config" "this" {
 
 resource "aws_launch_template" "main" {
   #checkov:skip=CKV_AWS_88:NAT instances must have a public IP.
+  region = var.region
+
   name          = var.name
   image_id      = local.ami_id
   instance_type = var.instance_type
@@ -121,6 +125,8 @@ resource "aws_launch_template" "main" {
 resource "aws_instance" "main" {
   #checkov:skip=CKV2_AWS_41:False positive, IAM role is attached via the launch template.
   count = var.ha_mode ? 0 : 1
+
+  region = var.region
 
   launch_template {
     id      = aws_launch_template.main.id

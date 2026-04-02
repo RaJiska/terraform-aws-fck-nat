@@ -1,6 +1,8 @@
 resource "aws_autoscaling_group" "main" {
   count = var.ha_mode ? 1 : 0
 
+  region = var.region
+
   name                = var.name
   max_size            = 1
   min_size            = 1

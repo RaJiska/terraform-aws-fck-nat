@@ -88,7 +88,7 @@ resource "aws_subnet" "public6" {
 
   vpc_id                                         = aws_vpc.main.id
   ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 2)
-  availability_zone                              = "${data.aws_region.current.name}a"
+  availability_zone                              = "${data.aws_region.current.region}a"
   enable_dns64                                   = true
   ipv6_native                                    = true
   assign_ipv6_address_on_creation                = true

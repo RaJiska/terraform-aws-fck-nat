@@ -58,6 +58,7 @@ module "fck-nat" {
 | [aws_launch_template.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
 | [aws_network_interface.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
 | [aws_route.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) | resource |
+| [aws_route.main_ipv6](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) | resource |
 | [aws_security_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_ssm_parameter.cloudwatch_agent_config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_ami.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
@@ -88,6 +89,7 @@ module "fck-nat" {
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
 | <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | Deprecated. Use route\_tables\_ids instead | `string` | `null` | no |
+| <a name="input_route_tables6_ids"></a> [route\_tables6\_ids](#input\_route\_tables6\_ids) | Route tables to update for IPv6. Only valid if update\_route\_tables and use\_nat64 are true | `map(string)` | `{}` | no |
 | <a name="input_route_tables_ids"></a> [route\_tables\_ids](#input\_route\_tables\_ids) | Route tables to update. Only valid if update\_route\_tables is true | `map(string)` | `{}` | no |
 | <a name="input_ssh_cidr_blocks"></a> [ssh\_cidr\_blocks](#input\_ssh\_cidr\_blocks) | CIDR blocks to allow SSH access to the NAT instance from | <pre>object({<br/>    ipv4 = optional(list(string), [])<br/>    ipv6 = optional(list(string), [])<br/>  })</pre> | <pre>{<br/>  "ipv4": [],<br/>  "ipv6": []<br/>}</pre> | no |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided | `string` | `null` | no |
@@ -97,6 +99,7 @@ module "fck-nat" {
 | <a name="input_update_route_tables"></a> [update\_route\_tables](#input\_update\_route\_tables) | Whether or not to update the route tables with the NAT instance | `bool` | `false` | no |
 | <a name="input_use_cloudwatch_agent"></a> [use\_cloudwatch\_agent](#input\_use\_cloudwatch\_agent) | Whether or not to enable CloudWatch agent for the NAT instance | `bool` | `false` | no |
 | <a name="input_use_default_security_group"></a> [use\_default\_security\_group](#input\_use\_default\_security\_group) | Whether or not to use the default security group for the NAT instance | `bool` | `true` | no |
+| <a name="input_use_nat64"></a> [use\_nat64](#input\_use\_nat64) | Whether or not to enable NAT64 on the NAT instance. Your VPC and at least the public subnet this NAT instance is deployed into must support IPv6 | `bool` | `false` | no |
 | <a name="input_use_spot_instances"></a> [use\_spot\_instances](#input\_use\_spot\_instances) | Whether or not to use spot instances for running the NAT instance | `bool` | `false` | no |
 | <a name="input_use_ssh"></a> [use\_ssh](#input\_use\_ssh) | Whether or not to enable SSH access to the NAT instance | `bool` | `false` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID to deploy the NAT instance into | `string` | n/a | yes |

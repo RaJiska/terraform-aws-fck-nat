@@ -70,7 +70,7 @@ variable "ha_mode" {
 variable "auto_rollout" {
   description = "Whether to automatically rollout configuration changes to the launch template (like AMI and cloud init)"
   type        = bool
-  default     = false # backward compatible with v1
+  default     = false
 }
 
 variable "instance_type" {

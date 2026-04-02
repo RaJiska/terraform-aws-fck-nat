@@ -27,6 +27,8 @@ data "aws_ami" "main" {
   }
 }
 
+data "aws_default_tags" "current" {}
+
 data "aws_arn" "ssm_param" {
   count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn != null ? 1 : 0
 
@@ -103,7 +105,7 @@ resource "aws_launch_template" "main" {
     content {
       resource_type = tag_specifications.value
 
-      tags = merge({ Name = var.name }, var.tags)
+      tags = merge(data.aws_default_tags.current.tags, { Name = var.name }, var.tags)
     }
   }
 

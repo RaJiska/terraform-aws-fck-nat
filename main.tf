@@ -61,19 +61,12 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_network_interface" "main" {
-<<<<<<< aws-region-param
   region = var.region
-  description       = "${var.name} static private ENI"
-  subnet_id         = var.subnet_id
-  security_groups   = [aws_security_group.main.id]
-  source_dest_check = false
-=======
   description        = "${var.name} static private ENI"
   subnet_id          = var.subnet_id
   security_groups    = [aws_security_group.main.id]
   source_dest_check  = false
   ipv6_address_count = var.use_nat64 ? 1 : null
->>>>>>> main
 
   tags = merge({ Name = var.name }, var.tags)
 }

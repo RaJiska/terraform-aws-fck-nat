@@ -89,6 +89,7 @@ module "fck-nat" {
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the NAT instance | `string` | `"t4g.micro"` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
+| <a name="input_region"></a> [region](#input\_region) | Region in which to create resources, defaults to provider region if not set | `string` | `null` | no |
 | <a name="input_route_table_id"></a> [route\_table\_id](#input\_route\_table\_id) | Deprecated. Use route\_tables\_ids instead | `string` | `null` | no |
 | <a name="input_route_tables6_ids"></a> [route\_tables6\_ids](#input\_route\_tables6\_ids) | Route tables to update for IPv6. Only valid if update\_route\_tables and use\_nat64 are true | `map(string)` | `{}` | no |
 | <a name="input_route_tables_ids"></a> [route\_tables\_ids](#input\_route\_tables\_ids) | Route tables to update. Only valid if update\_route\_tables is true | `map(string)` | `{}` | no |

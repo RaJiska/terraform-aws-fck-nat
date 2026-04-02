@@ -5,8 +5,8 @@ variable "name" {
 
 variable "region" {
   description = "Region in which to create resources, defaults to provider region if not set"
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "vpc_id" {

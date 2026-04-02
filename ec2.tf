@@ -6,7 +6,7 @@ data "aws_ami" "main" {
 
   filter {
     name   = "name"
-    values = ["fck-nat-al2023-hvm-*"]
+    values = [var.use_nat64 ? "fck-nat-nat64-al2023-hvm-*" : "fck-nat-al2023-hvm-*"]
   }
 
   filter {
@@ -82,6 +82,7 @@ resource "aws_launch_template" "main" {
     subnet_id                   = var.subnet_id
     associate_public_ip_address = true
     security_groups             = local.security_groups
+    ipv6_address_count          = var.use_nat64 ? 1 : null
   }
 
   dynamic "instance_market_options" {

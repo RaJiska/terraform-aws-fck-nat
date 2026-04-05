@@ -2,12 +2,17 @@ locals {
   name         = "fck-nat-example"
   vpc_cidr     = "10.255.255.0/24"
   ipv6_support = true
+  region       = null
 }
 
-data "aws_region" "current" {}
+data "aws_region" "current" {
+  region = local.region
+}
 
 module "fck-nat" {
   source = "../../"
+
+  region = local.region
 
   name      = local.name
   vpc_id    = aws_vpc.main.id

@@ -87,6 +87,8 @@ resource "aws_route" "main" {
 resource "aws_route" "main_ipv6" {
   for_each = (var.update_route_tables || var.update_route_table) && var.use_nat64 ? var.route_tables6_ids : {}
 
+  region = var.region
+
   route_table_id              = each.value
   destination_ipv6_cidr_block = "64:ff9b::/96"
   network_interface_id        = aws_network_interface.main.id

@@ -59,6 +59,10 @@ resource "aws_security_group" "main" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   tags = merge({ Name = var.name }, var.tags)
 }
 

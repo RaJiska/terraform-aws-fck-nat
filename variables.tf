@@ -183,6 +183,12 @@ variable "ssh_cidr_blocks" {
   }
 }
 
+variable "permissions_boundary_arn" {
+  description = "ARN of the IAM policy to use as a permissions boundary for the NAT instance IAM role"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Tags to apply to resources created within the module"
   type        = map(string)

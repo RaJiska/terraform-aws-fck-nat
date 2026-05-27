@@ -133,9 +133,10 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
 }
 
 resource "aws_iam_role" "main" {
-  name               = var.name
-  assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policy.json
-  tags               = var.tags
+  name                 = var.name
+  assume_role_policy   = data.aws_iam_policy_document.instance_assume_role_policy.json
+  permissions_boundary = var.permissions_boundary_arn
+  tags                 = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "main" {

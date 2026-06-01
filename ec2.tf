@@ -92,7 +92,7 @@ resource "aws_launch_template" "main" {
   }
 
   dynamic "instance_market_options" {
-    for_each = var.use_spot_instances ? ["x"] : []
+    for_each = !var.ha_mode && var.use_spot_instances ? ["x"] : [] # Conflicts with ASG in HA mode when using mixed-policy
 
     content {
       market_type = "spot"

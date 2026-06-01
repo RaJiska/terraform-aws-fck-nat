@@ -5,5 +5,5 @@ terraform {
       version = ">= 6.0" # Required for region variable on resources
     }
   }
-  required_version = "~> 1.3"
+  required_version = "~> 1.9" # For cross-object referencing on variables validation
 }

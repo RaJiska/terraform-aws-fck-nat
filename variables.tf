@@ -79,6 +79,17 @@ variable "instance_type" {
   default     = "t4g.micro"
 }
 
+variable "ha_additional_instance_types" {
+  description = "List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = var.ha_mode || (!var.ha_mode && length(var.ha_additional_instance_types) == 0)
+    error_message = "You must set ha_mode to true to use multiple instance types."
+  }
+}
+
 variable "ami_id" {
   description = "AMI to use for the NAT instance. Uses fck-nat latest AMI in the region if none provided"
   type        = string

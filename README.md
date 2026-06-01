@@ -35,7 +35,7 @@ module "fck-nat" {
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.9 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 6.0 |
 
 ## Providers
@@ -86,6 +86,7 @@ module "fck-nat" {
 | <a name="input_ebs_root_volume_size"></a> [ebs\_root\_volume\_size](#input\_ebs\_root\_volume\_size) | Size of the EBS root volume in GB | `number` | `8` | no |
 | <a name="input_eip_allocation_ids"></a> [eip\_allocation\_ids](#input\_eip\_allocation\_ids) | EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation. | `list(string)` | `[]` | no |
 | <a name="input_encryption"></a> [encryption](#input\_encryption) | Whether or not to encrypt the EBS volume | `bool` | `true` | no |
+| <a name="input_ha_additional_instance_types"></a> [ha\_additional\_instance\_types](#input\_ha\_additional\_instance\_types) | List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy | `list(string)` | `[]` | no |
 | <a name="input_ha_mode"></a> [ha\_mode](#input\_ha\_mode) | Whether or not high-availability mode should be enabled via autoscaling group | `bool` | `true` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the NAT instance | `string` | `"t4g.micro"` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided | `string` | `null` | no |
@@ -118,6 +119,7 @@ module "fck-nat" {
 | <a name="output_encryption"></a> [encryption](#output\_encryption) | Whether or not fck-nat instance EBS volumes are encrypted |
 | <a name="output_eni_arn"></a> [eni\_arn](#output\_eni\_arn) | The ARN of the static ENI used by the fck-nat instance |
 | <a name="output_eni_id"></a> [eni\_id](#output\_eni\_id) | The ID of the static ENI used by the fck-nat instance |
+| <a name="output_ha_additional_instance_types"></a> [ha\_additional\_instance\_types](#output\_ha\_additional\_instance\_types) | List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy |
 | <a name="output_ha_mode"></a> [ha\_mode](#output\_ha\_mode) | Whether or not high-availability mode is enabled via autoscaling group |
 | <a name="output_instance_arn"></a> [instance\_arn](#output\_instance\_arn) | The ARN of the fck-nat instance if running in non-HA mode |
 | <a name="output_instance_profile_arn"></a> [instance\_profile\_arn](#output\_instance\_profile\_arn) | The ARN of the instance profile used by the fck-nat instance |

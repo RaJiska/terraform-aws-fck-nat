@@ -83,11 +83,7 @@ variable "ha_additional_instance_types" {
   description = "List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy"
   type        = list(string)
   default     = []
-
-  validation {
-    condition     = var.ha_mode || (!var.ha_mode && length(var.ha_additional_instance_types) == 0)
-    error_message = "You must set ha_mode to true to use multiple instance types."
-  }
+  # brilliant fork: removed cross-variable validation (var.ha_mode reference) — requires TF 1.9+, Atlantis runs 1.7.5
 }
 
 variable "ami_id" {

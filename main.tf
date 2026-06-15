@@ -7,22 +7,17 @@ locals {
   instance_name      = lookup(var.tags, "Name", var.name)
 }
 
-data "aws_region" "current" {
-  region = var.region
-}
+data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
 data "aws_vpc" "main" {
-  region = var.region
-
   id = var.vpc_id
 }
 
 resource "aws_security_group" "main" {
   #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
   #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
-  region = var.region
 
   name        = var.name
   description = "Used in ${var.name} instance of fck-nat in subnet ${var.subnet_id}"
@@ -63,7 +58,6 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_network_interface" "main" {
-  region = var.region
 
   description        = "${var.name} static private ENI"
   subnet_id          = var.subnet_id
@@ -77,8 +71,6 @@ resource "aws_network_interface" "main" {
 resource "aws_route" "main" {
   for_each = var.update_route_tables || var.update_route_table ? merge(var.route_tables_ids, var.route_table_id != null ? { RESERVED_FKC_NAT = var.route_table_id } : {}) : {}
 
-  region = var.region
-
   route_table_id         = each.value
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = aws_network_interface.main.id
@@ -87,8 +79,6 @@ resource "aws_route" "main" {
 resource "aws_route" "main_ipv6" {
   for_each = (var.update_route_tables || var.update_route_table) && var.use_nat64 ? var.route_tables6_ids : {}
 
-  region = var.region
-
   route_table_id              = each.value
   destination_ipv6_cidr_block = "64:ff9b::/96"
   network_interface_id        = aws_network_interface.main.id
@@ -96,8 +86,6 @@ resource "aws_route" "main_ipv6" {
 
 resource "aws_ssm_parameter" "cloudwatch_agent_config" {
   count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn == null ? 1 : 0
-
-  region = var.region
 
   name   = "${var.name}-cloudwatch-agent-config"
   key_id = var.kms_key_id

@@ -1,5 +1,8 @@
 resource "aws_vpc" "main" {
-  cidr_block = local.vpc_cidr
+  region = local.region
+
+  cidr_block                       = local.vpc_cidr
+  assign_generated_ipv6_cidr_block = local.ipv6_support
 
   tags = {
     Name = local.name
@@ -9,8 +12,11 @@ resource "aws_vpc" "main" {
 ### Public
 
 resource "aws_subnet" "public" {
+  region = local.region
+
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(local.vpc_cidr, 4, 0)
+  ipv6_cidr_block   = local.ipv6_support ? cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 0) : null
   availability_zone = "${data.aws_region.current.region}a"
 
   tags = {
@@ -19,6 +25,8 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_internet_gateway" "gw" {
+  region = local.region
+
   vpc_id = aws_vpc.main.id
 
   tags = {
@@ -27,6 +35,8 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_route_table" "public" {
+  region = local.region
+
   vpc_id = aws_vpc.main.id
 
   tags = {
@@ -35,13 +45,26 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "public_igw" {
+  region = local.region
+
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.gw.id
+}
 
+resource "aws_route" "public_ipv6_igw" {
+  count = local.ipv6_support ? 1 : 0
+
+  region = local.region
+
+  route_table_id              = aws_route_table.public.id
+  destination_ipv6_cidr_block = "::0/0"
+  gateway_id                  = aws_internet_gateway.gw.id
 }
 
 resource "aws_route_table_association" "public" {
+  region = local.region
+
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
@@ -49,8 +72,11 @@ resource "aws_route_table_association" "public" {
 ### Private
 
 resource "aws_subnet" "private" {
+  region = local.region
+
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(local.vpc_cidr, 4, 1)
+  ipv6_cidr_block   = local.ipv6_support ? cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1) : null
   availability_zone = "${data.aws_region.current.region}a"
 
   tags = {
@@ -59,6 +85,8 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "private" {
+  region = local.region
+
   vpc_id = aws_vpc.main.id
 
   tags = {
@@ -67,6 +95,59 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table_association" "private" {
+  region = local.region
+
   subnet_id      = aws_subnet.private.id
   route_table_id = aws_route_table.private.id
+}
+
+### Public IPv6
+
+resource "aws_subnet" "public6" {
+  count = local.ipv6_support ? 1 : 0
+
+  region = local.region
+
+  vpc_id                                         = aws_vpc.main.id
+  ipv6_cidr_block                                = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 2)
+  availability_zone                              = "${data.aws_region.current.region}a"
+  enable_dns64                                   = true
+  ipv6_native                                    = true
+  assign_ipv6_address_on_creation                = true
+  enable_resource_name_dns_aaaa_record_on_launch = true
+
+  tags = {
+    Name = "${local.name}-public6"
+  }
+}
+
+resource "aws_route_table" "public6" {
+  count = local.ipv6_support ? 1 : 0
+
+  region = local.region
+
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${local.name}-public6"
+  }
+}
+
+resource "aws_route" "public6_igw" {
+  count = local.ipv6_support ? 1 : 0
+
+  region = local.region
+
+  route_table_id              = aws_route_table.public6[0].id
+  destination_ipv6_cidr_block = "::0/0"
+  gateway_id                  = aws_internet_gateway.gw.id
+}
+
+resource "aws_route_table_association" "public6" {
+  count = local.ipv6_support ? 1 : 0
+
+  region = local.region
+
+  subnet_id      = aws_subnet.public6[0].id
+  route_table_id = aws_route_table.public6[0].id
 }

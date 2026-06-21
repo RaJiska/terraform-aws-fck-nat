@@ -33,6 +33,11 @@ output "instance_type" {
   value       = aws_launch_template.main.instance_type
 }
 
+output "ha_additional_instance_types" {
+  description = "List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy"
+  value       = var.ha_additional_instance_types
+}
+
 output "ami_id" {
   description = "AMI to use for the NAT instance. Uses fck-nat latest arm64 AMI in the region if none provided"
   value       = aws_launch_template.main.image_id

@@ -1,12 +1,14 @@
 data "aws_ami" "main" {
   count = var.ami_id != null ? 0 : 1
 
+  region = var.region
+
   most_recent = true
   owners      = ["568608671756"]
 
   filter {
     name   = "name"
-    values = ["fck-nat-al2023-hvm-*"]
+    values = [var.use_nat64 ? "fck-nat-nat64-al2023-hvm-*" : "fck-nat-al2023-hvm-*"]
   }
 
   filter {
@@ -24,6 +26,8 @@ data "aws_ami" "main" {
     values = ["hvm"]
   }
 }
+
+data "aws_default_tags" "current" {}
 
 data "aws_arn" "ssm_param" {
   count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn != null ? 1 : 0
@@ -57,6 +61,8 @@ data "cloudinit_config" "this" {
 
 resource "aws_launch_template" "main" {
   #checkov:skip=CKV_AWS_88:NAT instances must have a public IP.
+  region = var.region
+
   name          = var.name
   image_id      = local.ami_id
   instance_type = var.instance_type
@@ -82,10 +88,11 @@ resource "aws_launch_template" "main" {
     subnet_id                   = var.subnet_id
     associate_public_ip_address = true
     security_groups             = local.security_groups
+    ipv6_address_count          = var.use_nat64 ? 1 : null
   }
 
   dynamic "instance_market_options" {
-    for_each = var.use_spot_instances ? ["x"] : []
+    for_each = !var.ha_mode && var.use_spot_instances ? ["x"] : [] # Conflicts with ASG in HA mode when using mixed-policy
 
     content {
       market_type = "spot"
@@ -98,7 +105,7 @@ resource "aws_launch_template" "main" {
     content {
       resource_type = tag_specifications.value
 
-      tags = merge({ Name = var.name }, var.tags)
+      tags = merge(data.aws_default_tags.current.tags, { Name = var.name }, var.tags)
     }
   }
 
@@ -121,9 +128,11 @@ resource "aws_instance" "main" {
   #checkov:skip=CKV2_AWS_41:False positive, IAM role is attached via the launch template.
   count = var.ha_mode ? 0 : 1
 
+  region = var.region
+
   launch_template {
     id      = aws_launch_template.main.id
-    version = "$Latest"
+    version = var.auto_rollout ? aws_launch_template.main.latest_version : "$Latest"
   }
 
   tags = var.tags

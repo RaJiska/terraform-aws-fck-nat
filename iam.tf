@@ -143,9 +143,10 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
 resource "aws_iam_role" "main" {
   count = var.iam_instance_profile_name == null ? 1 : 0
 
-  name               = var.name
-  assume_role_policy = data.aws_iam_policy_document.instance_assume_role_policy[0].json
-  tags               = var.tags
+  name                 = var.name
+  assume_role_policy   = data.aws_iam_policy_document.instance_assume_role_policy[0].json
+  permissions_boundary = var.permissions_boundary_arn
+  tags                 = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "main" {

@@ -46,6 +46,8 @@ data "cloudinit_config" "this" {
       TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
       TERRAFORM_CWAGENT_ENABLED        = var.use_cloudwatch_agent ? "true" : ""
       TERRAFORM_CWAGENT_CFG_PARAM_NAME = local.cwagent_param_name != null ? local.cwagent_param_name : ""
+      TERRAFORM_ENV_VARS               = var.user_data_env_vars
+      TERRAFORM_ADDITIONAL_CONFIG      = var.additional_fck_nat_configuration
     })
   }
 

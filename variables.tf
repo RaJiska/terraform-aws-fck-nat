@@ -214,3 +214,15 @@ variable "cloud_init_parts" {
   }))
   default = []
 }
+
+variable "additional_fck_nat_configuration" {
+  description = "Additional key/value pairs to append to /etc/fck-nat.conf"
+  type        = map(string)
+  default     = {}
+}
+
+variable "user_data_env_vars" {
+  description = "Environment variables to export at the start of the user data script"
+  type        = map(string)
+  default     = {}
+}

@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "main" {
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:aws:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:elastic-ip/${var.eip_allocation_ids[0]}",
+        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:elastic-ip/${var.eip_allocation_ids[0]}",
       ]
     }
   }
@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "main" {
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:aws:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
       ]
       condition {
         test     = "StringEquals"
@@ -126,7 +126,7 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = ["ec2.${data.aws_partition.current.dns_suffix}"]
     }
     effect = "Allow"
   }

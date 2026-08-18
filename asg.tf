@@ -10,6 +10,9 @@ resource "aws_autoscaling_group" "main" {
   health_check_type   = "EC2"
   vpc_zone_identifier = [var.subnet_id]
 
+  wait_for_capacity_timeout        = "5m"
+  ignore_failed_scaling_activities = true
+
   mixed_instances_policy {
     instances_distribution {
       on_demand_base_capacity                  = 0

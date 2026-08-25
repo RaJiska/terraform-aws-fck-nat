@@ -3,68 +3,21 @@ variable "name" {
   type        = string
 }
 
+variable "env" {
+  description = "environment name"
+  type        = string
+}
+
 variable "region" {
   description = "Region in which to create resources, defaults to provider region if not set"
   type        = string
   default     = null
 }
 
-variable "vpc_id" {
-  description = "VPC ID to deploy the NAT instance into"
-  type        = string
-}
-
-variable "subnet_id" {
-  description = "Subnet ID to deploy the NAT instance into"
-  type        = string
-}
-
-variable "update_route_table" {
-  description = "Deprecated. Use update_route_tables instead"
-  type        = bool
-  default     = false
-}
-
-variable "update_route_tables" {
-  description = "Whether or not to update the route tables with the NAT instance"
-  type        = bool
-  default     = false
-}
-
-variable "route_table_id" {
-  description = "Deprecated. Use route_tables_ids instead"
-  type        = string
-  default     = null
-}
-
-variable "route_tables_ids" {
-  description = "Route tables to update. Only valid if update_route_tables is true"
-  type        = map(string)
-  default     = {}
-}
-
-variable "route_tables6_ids" {
-  description = "Route tables to update for IPv6. Only valid if update_route_tables and use_nat64 are true"
-  type        = map(string)
-  default     = {}
-}
-
-variable "encryption" {
-  description = "Whether or not to encrypt the EBS volume"
-  type        = bool
-  default     = true
-}
-
 variable "kms_key_id" {
   description = "Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided"
   type        = string
   default     = null
-}
-
-variable "ha_mode" {
-  description = "Whether or not high-availability mode should be enabled via autoscaling group"
-  type        = bool
-  default     = true
 }
 
 variable "auto_rollout" {
@@ -83,11 +36,6 @@ variable "ha_additional_instance_types" {
   description = "List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy"
   type        = list(string)
   default     = []
-
-  validation {
-    condition     = var.ha_mode || (!var.ha_mode && length(var.ha_additional_instance_types) == 0)
-    error_message = "You must set ha_mode to true to use multiple instance types."
-  }
 }
 
 variable "ami_id" {
@@ -170,30 +118,6 @@ variable "use_nat64" {
   default     = false
 }
 
-variable "use_ssh" {
-  description = "Whether or not to enable SSH access to the NAT instance"
-  type        = bool
-  default     = false
-}
-
-variable "ssh_key_name" {
-  description = "Name of the SSH key to use for the NAT instance. SSH access will be enabled only if a key name is provided"
-  type        = string
-  default     = null
-}
-
-variable "ssh_cidr_blocks" {
-  description = "CIDR blocks to allow SSH access to the NAT instance from"
-  type = object({
-    ipv4 = optional(list(string), [])
-    ipv6 = optional(list(string), [])
-  })
-  default = {
-    ipv4 = [],
-    ipv6 = []
-  }
-}
-
 variable "permissions_boundary_arn" {
   description = "ARN of the IAM policy to use as a permissions boundary for the NAT instance IAM role"
   type        = string
@@ -213,4 +137,22 @@ variable "cloud_init_parts" {
     content_type = string
   }))
   default = []
+}
+
+
+locals {
+  is_arm             = can(regex("[a-zA-Z]+\\d+g[a-z]*\\..+", var.instance_type))
+  ami_id             = var.ami_id != null ? var.ami_id : data.aws_ami.main[0].id
+  cwagent_param_arn  = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? var.cloudwatch_agent_configuration_param_arn : aws_ssm_parameter.cloudwatch_agent_config[0].arn : null
+  cwagent_param_name = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? trimprefix(data.aws_arn.ssm_param[0].resource, "parameter") : aws_ssm_parameter.cloudwatch_agent_config[0].name : null
+  security_groups    = concat(var.use_default_security_group ? [aws_security_group.main.id] : [], var.additional_security_group_ids)
+  instance_name      = lookup(var.tags, "Name", var.name)
+  vpc_name           = "${var.env}-${var.name}"
+
+
+  common_tags = {
+    environment = var.env
+    managed-by  = "terraform"
+    vpc-name    = local.vpc_name
+  }
 }

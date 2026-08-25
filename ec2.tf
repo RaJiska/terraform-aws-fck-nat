@@ -1,48 +1,13 @@
-data "aws_ami" "main" {
-  count = var.ami_id != null ? 0 : 1
-
-  region = var.region
-
-  most_recent = true
-  owners      = ["568608671756"]
-
-  filter {
-    name   = "name"
-    values = [var.use_nat64 ? "fck-nat-nat64-al2023-hvm-*" : "fck-nat-al2023-hvm-*"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = [local.is_arm ? "arm64" : "x86_64"]
-  }
-
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
-data "aws_default_tags" "current" {}
-
-data "aws_arn" "ssm_param" {
-  count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn != null ? 1 : 0
-
-  arn = var.cloudwatch_agent_configuration_param_arn
-}
-
 data "cloudinit_config" "this" {
+  for_each = local.private_az_subnets
+
   gzip          = true
   base64_encode = true
 
   part {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/templates/user_data.sh", {
-      TERRAFORM_ENI_ID                 = aws_network_interface.main.id
+      TERRAFORM_ENI_ID                 = aws_network_interface.main[each.key].id
       TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
       TERRAFORM_CWAGENT_ENABLED        = var.use_cloudwatch_agent ? "true" : ""
       TERRAFORM_CWAGENT_CFG_PARAM_NAME = local.cwagent_param_name != null ? local.cwagent_param_name : ""
@@ -60,13 +25,14 @@ data "cloudinit_config" "this" {
 }
 
 resource "aws_launch_template" "main" {
+  for_each = local.private_az_subnets
+
   #checkov:skip=CKV_AWS_88:NAT instances must have a public IP.
   region = var.region
 
-  name          = var.name
+  name          = "${var.name}-${each.key}"
   image_id      = local.ami_id
   instance_type = var.instance_type
-  key_name      = var.ssh_key_name
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -74,7 +40,7 @@ resource "aws_launch_template" "main" {
     ebs {
       volume_size = var.ebs_root_volume_size
       volume_type = "gp3"
-      encrypted   = var.encryption
+      encrypted   = true
       kms_key_id  = var.kms_key_id
     }
   }
@@ -85,18 +51,9 @@ resource "aws_launch_template" "main" {
 
   network_interfaces {
     description                 = "${var.name} ephemeral public ENI"
-    subnet_id                   = var.subnet_id
     associate_public_ip_address = true
     security_groups             = local.security_groups
     ipv6_address_count          = var.use_nat64 ? 1 : null
-  }
-
-  dynamic "instance_market_options" {
-    for_each = !var.ha_mode && var.use_spot_instances ? ["x"] : [] # Conflicts with ASG in HA mode when using mixed-policy
-
-    content {
-      market_type = "spot"
-    }
   }
 
   dynamic "tag_specifications" {
@@ -105,11 +62,11 @@ resource "aws_launch_template" "main" {
     content {
       resource_type = tag_specifications.value
 
-      tags = merge(data.aws_default_tags.current.tags, { Name = var.name }, var.tags)
+      tags = merge(data.aws_default_tags.current.tags, { Name = "${var.name}-${each.key}" }, var.tags)
     }
   }
 
-  user_data = data.cloudinit_config.this.rendered
+  user_data = data.cloudinit_config.this[each.key].rendered
 
   credit_specification {
     cpu_credits = var.credit_specification
@@ -121,27 +78,5 @@ resource "aws_launch_template" "main" {
     http_tokens   = "required"
   }
 
-  tags = var.tags
-}
-
-resource "aws_instance" "main" {
-  #checkov:skip=CKV2_AWS_41:False positive, IAM role is attached via the launch template.
-  count = var.ha_mode ? 0 : 1
-
-  region = var.region
-
-  launch_template {
-    id      = aws_launch_template.main.id
-    version = var.auto_rollout ? aws_launch_template.main.latest_version : "$Latest"
-  }
-
-  tags = var.tags
-
-  lifecycle {
-    ignore_changes = [
-      source_dest_check,
-      user_data,
-      tags
-    ]
-  }
+  tags = local.common_tags
 }

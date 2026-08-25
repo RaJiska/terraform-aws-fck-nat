@@ -19,7 +19,6 @@ module "fck-nat" {
   name                 = "my-fck-nat"
   vpc_id               = "vpc-abc1234"
   subnet_id            = "subnet-abc1234"
-  # ha_mode              = true                 # Enables high-availability mode
   # eip_allocation_ids   = ["eipalloc-abc1234"] # Allocation ID of an existing EIP
   # use_cloudwatch_agent = true                 # Enables Cloudwatch agent and have metrics reported
 

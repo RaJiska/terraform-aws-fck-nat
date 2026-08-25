@@ -1,24 +1,3 @@
-locals {
-  is_arm             = can(regex("[a-zA-Z]+\\d+g[a-z]*\\..+", var.instance_type))
-  ami_id             = var.ami_id != null ? var.ami_id : data.aws_ami.main[0].id
-  cwagent_param_arn  = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? var.cloudwatch_agent_configuration_param_arn : aws_ssm_parameter.cloudwatch_agent_config[0].arn : null
-  cwagent_param_name = var.use_cloudwatch_agent ? var.cloudwatch_agent_configuration_param_arn != null ? trimprefix(data.aws_arn.ssm_param[0].resource, "parameter") : aws_ssm_parameter.cloudwatch_agent_config[0].name : null
-  security_groups    = concat(var.use_default_security_group ? [aws_security_group.main.id] : [], var.additional_security_group_ids)
-  instance_name      = lookup(var.tags, "Name", var.name)
-}
-
-data "aws_region" "current" {
-  region = var.region
-}
-
-data "aws_partition" "current" {}
-data "aws_caller_identity" "current" {}
-
-data "aws_vpc" "main" {
-  region = var.region
-
-  id = var.vpc_id
-}
 
 resource "aws_security_group" "main" {
   #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
@@ -26,29 +5,16 @@ resource "aws_security_group" "main" {
   region = var.region
 
   name        = var.name
-  description = "Used in ${var.name} instance of fck-nat in subnet ${var.subnet_id}"
-  vpc_id      = data.aws_vpc.main.id
+  description = "Used in ${var.name} instance of fck-nat"
+  vpc_id      = aws_vpc.current.id
 
   ingress {
     description      = "Unrestricted ingress from within VPC"
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
-    cidr_blocks      = data.aws_vpc.main.cidr_block_associations[*].cidr_block
-    ipv6_cidr_blocks = var.use_nat64 ? ["${data.aws_vpc.main.ipv6_cidr_block}"] : null
-  }
-
-  dynamic "ingress" {
-    for_each = var.use_ssh && (length(var.ssh_cidr_blocks.ipv4) > 0 || length(var.ssh_cidr_blocks.ipv6) > 0) ? [1] : [] #  
-
-    content {
-      description      = "SSH access"
-      from_port        = 22
-      to_port          = 22
-      protocol         = "tcp"
-      cidr_blocks      = var.ssh_cidr_blocks.ipv4
-      ipv6_cidr_blocks = var.ssh_cidr_blocks.ipv6
-    }
+    cidr_blocks      = [aws_vpc.current.cidr_block]
+    ipv6_cidr_blocks = var.use_nat64 ? [aws_vpc.current.ipv6_cidr_block] : null
   }
 
   egress {
@@ -64,35 +30,37 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_network_interface" "main" {
+  for_each = local.private_az_subnets
+
   region = var.region
 
-  description        = "${var.name} static private ENI"
-  subnet_id          = var.subnet_id
+  description        = "${var.name} static private ENI (${each.key})"
+  subnet_id          = each.value
   security_groups    = [aws_security_group.main.id]
   source_dest_check  = false
   ipv6_address_count = var.use_nat64 ? 1 : null
 
-  tags = merge({ Name = var.name }, var.tags)
+  tags = merge({ Name = "${var.name}-${each.key}" }, var.tags)
 }
 
 resource "aws_route" "main" {
-  for_each = var.update_route_tables || var.update_route_table ? merge(var.route_tables_ids, var.route_table_id != null ? { RESERVED_FKC_NAT = var.route_table_id } : {}) : {}
+  for_each = local.private_az_route_tables
 
   region = var.region
 
   route_table_id         = each.value
   destination_cidr_block = "0.0.0.0/0"
-  network_interface_id   = aws_network_interface.main.id
+  network_interface_id   = aws_network_interface.main[each.key].id
 }
 
 resource "aws_route" "main_ipv6" {
-  for_each = (var.update_route_tables || var.update_route_table) && var.use_nat64 ? var.route_tables6_ids : {}
+  for_each = var.use_nat64 ? local.private_az_route_tables : {}
 
   region = var.region
 
   route_table_id              = each.value
   destination_ipv6_cidr_block = "64:ff9b::/96"
-  network_interface_id        = aws_network_interface.main.id
+  network_interface_id        = aws_network_interface.main[each.key].id
 }
 
 resource "aws_ssm_parameter" "cloudwatch_agent_config" {

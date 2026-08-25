@@ -19,7 +19,6 @@ module "fck-nat" {
   name                 = "my-fck-nat"
   vpc_id               = "vpc-abc1234"
   subnet_id            = "subnet-abc1234"
-  # ha_mode              = true                 # Enables high-availability mode
   # eip_allocation_ids   = ["eipalloc-abc1234"] # Allocation ID of an existing EIP
   # use_cloudwatch_agent = true                 # Enables Cloudwatch agent and have metrics reported
 
@@ -54,7 +53,6 @@ module "fck-nat" {
 | [aws_iam_policy.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_instance.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
 | [aws_launch_template.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
 | [aws_network_interface.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/network_interface) | resource |
 | [aws_route.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) | resource |
@@ -87,7 +85,6 @@ module "fck-nat" {
 | <a name="input_eip_allocation_ids"></a> [eip\_allocation\_ids](#input\_eip\_allocation\_ids) | EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation. | `list(string)` | `[]` | no |
 | <a name="input_encryption"></a> [encryption](#input\_encryption) | Whether or not to encrypt the EBS volume | `bool` | `true` | no |
 | <a name="input_ha_additional_instance_types"></a> [ha\_additional\_instance\_types](#input\_ha\_additional\_instance\_types) | List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy | `list(string)` | `[]` | no |
-| <a name="input_ha_mode"></a> [ha\_mode](#input\_ha\_mode) | Whether or not high-availability mode should be enabled via autoscaling group | `bool` | `true` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the NAT instance | `string` | `"t4g.micro"` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
@@ -114,16 +111,13 @@ module "fck-nat" {
 | Name | Description |
 |------|-------------|
 | <a name="output_ami_id"></a> [ami\_id](#output\_ami\_id) | AMI to use for the NAT instance. Uses fck-nat latest arm64 AMI in the region if none provided |
-| <a name="output_autoscaling_group_arn"></a> [autoscaling\_group\_arn](#output\_autoscaling\_group\_arn) | The ARN of the autoscaling group if running in HA mode |
+| <a name="output_autoscaling_group_arn"></a> [autoscaling\_group\_arn](#output\_autoscaling\_group\_arn) | The ARN of the autoscaling group used to run the fck-nat instance |
 | <a name="output_cw_agent_config_ssm_parameter_arn"></a> [cw\_agent\_config\_ssm\_parameter\_arn](#output\_cw\_agent\_config\_ssm\_parameter\_arn) | The ARN of the SSM parameter containing the Cloudwatch agent config |
 | <a name="output_encryption"></a> [encryption](#output\_encryption) | Whether or not fck-nat instance EBS volumes are encrypted |
 | <a name="output_eni_arn"></a> [eni\_arn](#output\_eni\_arn) | The ARN of the static ENI used by the fck-nat instance |
 | <a name="output_eni_id"></a> [eni\_id](#output\_eni\_id) | The ID of the static ENI used by the fck-nat instance |
 | <a name="output_ha_additional_instance_types"></a> [ha\_additional\_instance\_types](#output\_ha\_additional\_instance\_types) | List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy |
-| <a name="output_ha_mode"></a> [ha\_mode](#output\_ha\_mode) | Whether or not high-availability mode is enabled via autoscaling group |
-| <a name="output_instance_arn"></a> [instance\_arn](#output\_instance\_arn) | The ARN of the fck-nat instance if running in non-HA mode |
 | <a name="output_instance_profile_arn"></a> [instance\_profile\_arn](#output\_instance\_profile\_arn) | The ARN of the instance profile used by the fck-nat instance |
-| <a name="output_instance_public_ip"></a> [instance\_public\_ip](#output\_instance\_public\_ip) | The public IP address of the fck-nat instance if running in non-HA mode |
 | <a name="output_instance_type"></a> [instance\_type](#output\_instance\_type) | Instance type used for the fck-nat instance |
 | <a name="output_kms_key_id"></a> [kms\_key\_id](#output\_kms\_key\_id) | KMS key ID to use for encrypting fck-nat instance EBS volumes |
 | <a name="output_launch_template_id"></a> [launch\_template\_id](#output\_launch\_template\_id) | The ID of the launch template used to spawn fck-nat instances |

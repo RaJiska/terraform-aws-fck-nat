@@ -3,19 +3,9 @@ output "name" {
   value       = var.name
 }
 
-output "vpc_id" {
-  description = "VPC ID to which the fck-nat instance is deployed into"
-  value       = var.vpc_id
-}
-
-output "subnet_id" {
-  description = "Subnet ID to which the fck-nat instance is deployed into"
-  value       = var.subnet_id
-}
-
-output "encryption" {
-  description = "Whether or not fck-nat instance EBS volumes are encrypted"
-  value       = var.encryption
+output "vpc_cidr_block" {
+  description = "CIDR block of the VPC created for the fck-nat instances"
+  value       = aws_vpc.current.cidr_block
 }
 
 output "kms_key_id" {
@@ -23,14 +13,9 @@ output "kms_key_id" {
   value       = var.kms_key_id
 }
 
-output "ha_mode" {
-  description = "Whether or not high-availability mode is enabled via autoscaling group"
-  value       = var.ha_mode
-}
-
 output "instance_type" {
-  description = "Instance type used for the fck-nat instance"
-  value       = aws_launch_template.main.instance_type
+  description = "Instance type used for the fck-nat instances"
+  value       = var.instance_type
 }
 
 output "ha_additional_instance_types" {
@@ -39,18 +24,18 @@ output "ha_additional_instance_types" {
 }
 
 output "ami_id" {
-  description = "AMI to use for the NAT instance. Uses fck-nat latest arm64 AMI in the region if none provided"
-  value       = aws_launch_template.main.image_id
+  description = "AMI used for the fck-nat instances"
+  value       = local.ami_id
 }
 
-output "eni_id" {
-  description = "The ID of the static ENI used by the fck-nat instance"
-  value       = aws_network_interface.main.id
+output "eni_ids" {
+  description = "Map of AZ to the ID of the static ENI used by the fck-nat instance in that AZ"
+  value       = { for az, eni in aws_network_interface.main : az => eni.id }
 }
 
-output "eni_arn" {
-  description = "The ARN of the static ENI used by the fck-nat instance"
-  value       = aws_network_interface.main.arn
+output "eni_arns" {
+  description = "Map of AZ to the ARN of the static ENI used by the fck-nat instance in that AZ"
+  value       = { for az, eni in aws_network_interface.main : az => eni.arn }
 }
 
 output "security_group_id" {
@@ -78,24 +63,19 @@ output "instance_profile_arn" {
   value       = aws_iam_instance_profile.main.arn
 }
 
-output "launch_template_id" {
-  description = "The ID of the launch template used to spawn fck-nat instances"
-  value       = aws_launch_template.main.arn
+output "launch_template_ids" {
+  description = "Map of AZ to the ID of the launch template used to spawn fck-nat instances in that AZ"
+  value       = { for az, lt in aws_launch_template.main : az => lt.id }
 }
 
-output "instance_arn" {
-  description = "The ARN of the fck-nat instance if running in non-HA mode"
-  value       = var.ha_mode ? null : aws_instance.main[0].arn
+output "autoscaling_group_arns" {
+  description = "Map of AZ to the ARN of the autoscaling group running fck-nat instances in that AZ"
+  value       = { for az, asg in aws_autoscaling_group.main : az => asg.arn }
 }
 
-output "instance_public_ip" {
-  description = "The public IP address of the fck-nat instance if running in non-HA mode"
-  value       = var.ha_mode ? null : aws_instance.main[0].public_ip
-}
-
-output "autoscaling_group_arn" {
-  description = "The ARN of the autoscaling group if running in HA mode"
-  value       = var.ha_mode ? aws_autoscaling_group.main[0].arn : null
+output "autoscaling_group_names" {
+  description = "Map of AZ to the name of the autoscaling group running fck-nat instances in that AZ"
+  value       = { for az, asg in aws_autoscaling_group.main : az => asg.name }
 }
 
 output "cw_agent_config_ssm_parameter_arn" {

@@ -117,7 +117,7 @@ data "aws_iam_policy_document" "main" {
 
 resource "aws_iam_policy" "main" {
   name   = local.name
-  policy = data.aws_iam_policy_document.main.json
+  policy = data.aws_iam_policy_document.main.json`
   tags   = merge(local.common_tags, { Name = local.name })
 }
 

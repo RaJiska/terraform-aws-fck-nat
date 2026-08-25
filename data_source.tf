@@ -1,6 +1,4 @@
-data "aws_region" "current" {
-  region = var.region
-}
+data "aws_region" "current" {}
 
 data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
@@ -12,7 +10,7 @@ data "aws_availability_zones" "available" {
 data "aws_ami" "main" {
   count = var.ami_id != null ? 0 : 1
 
-  region = var.region
+  region = local.region
 
   most_recent = true
   owners      = ["568608671756"]

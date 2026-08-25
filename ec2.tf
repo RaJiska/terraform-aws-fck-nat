@@ -1,3 +1,34 @@
+resource "aws_security_group" "main" {
+  #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
+  #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
+  region = local.region
+
+  name        = local.name
+  description = "Used in ${local.name} instances of fck-nat"
+  vpc_id      = aws_vpc.current.id
+
+  ingress {
+    description      = "Unrestricted ingress from within VPC"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = [aws_vpc.current.cidr_block]
+    ipv6_cidr_blocks = var.use_nat64 ? [aws_vpc.current.ipv6_cidr_block] : null
+  }
+
+  egress {
+    description      = "Unrestricted egress"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = merge(local.common_tags, { Name = local.name })
+}
+
+
 data "cloudinit_config" "this" {
   for_each = local.private_az_subnets
 
@@ -28,9 +59,9 @@ resource "aws_launch_template" "main" {
   for_each = local.private_az_subnets
 
   #checkov:skip=CKV_AWS_88:NAT instances must have a public IP.
-  region = var.region
+  region = local.region
 
-  name          = "${var.name}-${each.key}"
+  name          = "${local.name}-${each.key}"
   image_id      = local.ami_id
   instance_type = var.instance_type
 
@@ -50,7 +81,7 @@ resource "aws_launch_template" "main" {
   }
 
   network_interfaces {
-    description                 = "${var.name} ephemeral public ENI"
+    description                 = "${local.name}-${each.key} ephemeral public ENI"
     associate_public_ip_address = true
     security_groups             = local.security_groups
     ipv6_address_count          = var.use_nat64 ? 1 : null
@@ -62,7 +93,7 @@ resource "aws_launch_template" "main" {
     content {
       resource_type = tag_specifications.value
 
-      tags = merge(data.aws_default_tags.current.tags, { Name = "${var.name}-${each.key}" }, var.tags)
+      tags = merge(local.common_tags, { Name = "${local.name}-${each.key}" })
     }
   }
 
@@ -78,5 +109,102 @@ resource "aws_launch_template" "main" {
     http_tokens   = "required"
   }
 
-  tags = local.common_tags
+  tags = merge(local.common_tags, { Name = "${local.name}-${each.key}" })
+}
+
+
+
+
+#######
+# ASG #
+#######
+
+
+
+resource "aws_autoscaling_group" "main" {
+  for_each = local.asg_az_subnets
+
+  region = local.region
+
+  name                = "${local.name}-${each.key}"
+  max_size            = 1
+  min_size            = 1
+  desired_capacity    = 1
+  health_check_type   = "EC2"
+  vpc_zone_identifier = [each.value]
+
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_base_capacity                  = 0
+      on_demand_percentage_above_base_capacity = var.use_spot_instances ? 0 : 100
+      spot_allocation_strategy                 = "price-capacity-optimized"
+    }
+
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.main[each.key].id
+        version            = aws_launch_template.main[each.key].latest_version
+      }
+
+      override {
+        instance_type = var.instance_type
+      }
+
+      dynamic "override" {
+        for_each = toset(var.ha_additional_instance_types)
+
+        content {
+          instance_type = override.value
+        }
+      }
+    }
+  }
+
+  dynamic "tag" {
+    for_each = merge(local.common_tags, { "Name" = "${local.name}-${each.key}" })
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = false
+    }
+  }
+
+  dynamic "instance_refresh" {
+    for_each = var.auto_rollout ? [true] : []
+    content {
+      strategy = "Rolling"
+      preferences {
+        # network interface needs to be freed, before it can be attached to a new instance
+        min_healthy_percentage = 0
+      }
+    }
+  }
+
+  enabled_metrics = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupPendingInstances",
+    "GroupStandbyInstances",
+    "GroupTerminatingInstances",
+    "GroupTotalInstances",
+    "GroupInServiceCapacity",
+    "GroupPendingCapacity",
+    "GroupStandbyCapacity",
+    "GroupTerminatingCapacity",
+    "GroupTotalCapacity",
+    "WarmPoolDesiredCapacity",
+    "WarmPoolWarmedCapacity",
+    "WarmPoolPendingCapacity",
+    "WarmPoolTerminatingCapacity",
+    "WarmPoolTotalCapacity",
+    "GroupAndWarmPoolDesiredCapacity",
+    "GroupAndWarmPoolTotalCapacity"
+  ]
+
+  timeouts {
+    delete = "15m"
+  }
 }

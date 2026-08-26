@@ -14,18 +14,11 @@ an ASG
 
 ```hcl
 module "fck-nat" {
-  source = "git::https://github.com/RaJiska/terraform-aws-fck-nat.git"
+  source = "git::https://github.com/jperez3/terraform-aws-fck-nat.git"
 
-  name                 = "my-fck-nat"
-  vpc_id               = "vpc-abc1234"
-  subnet_id            = "subnet-abc1234"
-  # eip_allocation_ids   = ["eipalloc-abc1234"] # Allocation ID of an existing EIP
+  env   = "dev"
+  name  = "my-fck-nat"
+
   # use_cloudwatch_agent = true                 # Enables Cloudwatch agent and have metrics reported
-
-  update_route_tables = true
-  route_tables_ids = {
-    "your-rtb-name-A" = "rtb-abc1234Foo"
-    "your-rtb-name-B" = "rtb-abc1234Bar"
-  }
 }
 ```

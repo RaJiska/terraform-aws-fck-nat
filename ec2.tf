@@ -119,6 +119,11 @@ resource "aws_launch_template" "main" {
 # ASG #
 #######
 
+# Needed to ensure the IAM instance profile is fully propagated before creating the ASG
+resource "time_sleep" "wait_for_iam" {
+  depends_on      = [aws_iam_instance_profile.main]
+  create_duration = "15s"
+}
 
 
 resource "aws_autoscaling_group" "main" {
@@ -207,4 +212,6 @@ resource "aws_autoscaling_group" "main" {
   timeouts {
     delete = "15m"
   }
+
+  depends_on = [ time_sleep.wait_for_iam ]
 }

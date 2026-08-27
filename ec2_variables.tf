@@ -35,9 +35,16 @@ variable "ebs_root_volume_size" {
 }
 
 variable "eip_allocation_ids" {
-  description = "EIP allocation IDs to use for the NAT instance. Automatically assign a public IP if none is provided. Note: Currently only supports at most one EIP allocation."
-  type        = list(string)
-  default     = []
+  description = "Map of Availability Zone name to EIP allocation ID to use for the NAT instance in that AZ. Automatically assigns a public IP if not provided. Must contain an entry for every AZ used by this module when non-empty."
+  type        = map(string)
+  default     = {}
+
+  validation {
+    condition = alltrue([
+      for az in local.asg_azs : contains(keys(var.eip_allocation_ids), az)
+    ]) || length(var.eip_allocation_ids) == 0
+    error_message = "eip_allocation_ids must either be empty, or contain an entry for every AZ used by this module (${join(", ", local.asg_azs)})."
+  }
 }
 
 variable "attach_ssm_policy" {
@@ -120,6 +127,24 @@ variable "cloud_init_parts" {
 
 
 
+
+variable "enable_health_alarms" {
+  description = "Whether to create CloudWatch alarms for NAT instance ASG health (one per AZ, alarming when the ASG has 0 in-service instances)"
+  type        = bool
+  default     = true
+}
+
+variable "alarm_sns_topic_arn" {
+  description = "SNS topic ARN to notify when a NAT instance health alarm triggers. If not provided, the module creates its own SNS topic when enable_health_alarms is true"
+  type        = string
+  default     = null
+}
+
+variable "alarm_email_addresses" {
+  description = "List of email addresses to subscribe to the NAT instance health alarm SNS topic. Only used when the module creates its own SNS topic (i.e. alarm_sns_topic_arn is not set). Each address will receive a confirmation email that must be accepted before alarm notifications are delivered."
+  type        = list(string)
+  default     = []
+}
 
 locals {
   # AZs actually used for subnets in vpc.tf

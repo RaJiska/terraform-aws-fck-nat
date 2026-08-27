@@ -8,13 +8,13 @@
 # the AWS provider at the floci endpoints instead of real AWS.
 #
 # KNOWN LIMITATION:
-#   floci's community/free edition does not support EC2 CreateNetworkInterface
-#   (it returns "UnsupportedOperation: Operation CreateNetworkInterface is not
+#   floci does not support the EC2 CreateNetworkInterface API (it returns
+#   "UnsupportedOperation: Operation CreateNetworkInterface is not
 #   supported"). Since this module creates a static ENI per AZ for each NAT
-#   instance, `apply` will always fail at that step on the free tier. This is
-#   a floci limitation, not a bug in this module. This script detects that
-#   specific error, reports it clearly, and treats the run up to that point
-#   (VPC/subnets/route tables/security groups/IAM) as the validation signal.
+#   instance, `apply` will always fail at that step when targeting floci.
+#   This script detects that specific error, reports it clearly, and treats
+#   the run up to that point (VPC/subnets/route tables/security
+#   groups/IAM) as the validation signal.
 #
 # Usage:
 #   ./scripts/test-with-floci.sh              # test all examples/* directories
@@ -169,14 +169,13 @@ test_example() {
     if grep -q "CreateNetworkInterface is not supported" "$apply_log"; then
       ENI_LIMITATION_HIT=1
       warn "apply for ${name} was blocked by floci's ENI creation limitation:"
-      warn "  floci's community/free edition rejects EC2 CreateNetworkInterface"
-      warn "  (\"UnsupportedOperation: Operation CreateNetworkInterface is not"
-      warn "  supported\"). This module creates a static ENI per AZ for each"
-      warn "  NAT instance, so full apply cannot complete against free-tier"
-      warn "  floci. All prior resources (VPC, subnets, route tables, internet"
-      warn "  gateway, security group, IAM role/policy/instance profile)"
-      warn "  created successfully, confirming the module logic up to that"
-      warn "  point is correct."
+      warn "  floci rejects EC2 CreateNetworkInterface (\"UnsupportedOperation:"
+      warn "  Operation CreateNetworkInterface is not supported\"). This module"
+      warn "  creates a static ENI per AZ for each NAT instance, so full apply"
+      warn "  cannot complete against floci. All prior resources (VPC, subnets,"
+      warn "  route tables, internet gateway, security group, IAM"
+      warn "  role/policy/instance profile) created successfully, confirming"
+      warn "  the module logic up to that point is correct."
     else
       error "apply failed for ${name} with an unexpected error:"
       cat "$apply_log"

@@ -39,7 +39,7 @@ data "cloudinit_config" "this" {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/templates/user_data.sh", {
       TERRAFORM_ENI_ID                 = aws_network_interface.main[each.key].id
-      TERRAFORM_EIP_ID                 = length(var.eip_allocation_ids) != 0 ? var.eip_allocation_ids[0] : ""
+      TERRAFORM_EIP_ID                 = lookup(var.eip_allocation_ids, each.key, "")
       TERRAFORM_CWAGENT_ENABLED        = var.use_cloudwatch_agent ? "true" : ""
       TERRAFORM_CWAGENT_CFG_PARAM_NAME = local.cwagent_param_name != null ? local.cwagent_param_name : ""
     })
@@ -200,18 +200,11 @@ resource "aws_autoscaling_group" "main" {
     "GroupStandbyCapacity",
     "GroupTerminatingCapacity",
     "GroupTotalCapacity",
-    "WarmPoolDesiredCapacity",
-    "WarmPoolWarmedCapacity",
-    "WarmPoolPendingCapacity",
-    "WarmPoolTerminatingCapacity",
-    "WarmPoolTotalCapacity",
-    "GroupAndWarmPoolDesiredCapacity",
-    "GroupAndWarmPoolTotalCapacity"
   ]
 
   timeouts {
     delete = "15m"
   }
 
-  depends_on = [ time_sleep.wait_for_iam ]
+  depends_on = [time_sleep.wait_for_iam]
 }

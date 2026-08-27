@@ -16,34 +16,34 @@ data "aws_iam_policy_document" "main" {
     resources = [
       "*",
     ]
-      condition {
-        test     = "StringLike"
-        variable = "ec2:ResourceTag/Name"
-        values   = ["${local.name}-${local.region}*"]
-      }
+    condition {
+      test     = "StringLike"
+      variable = "ec2:ResourceTag/Name"
+      values   = ["${local.name}-${local.region}*"]
+    }
   }
 
   dynamic "statement" {
-    for_each = length(var.eip_allocation_ids) != 0 ? ["x"] : []
+    for_each = var.eip_allocation_ids
 
     content {
-      sid    = "ManageEIPAllocation"
+      sid    = "ManageEIPAllocation${replace(statement.key, "-", "")}"
       effect = "Allow"
       actions = [
         "ec2:AssociateAddress",
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${data.aws_caller_identity.current.account_id}:elastic-ip/${var.eip_allocation_ids[0]}",
+        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${data.aws_caller_identity.current.account_id}:elastic-ip/${statement.value}",
       ]
     }
   }
 
   dynamic "statement" {
-    for_each = length(var.eip_allocation_ids) != 0 ? ["x"] : []
+    for_each = var.eip_allocation_ids
 
     content {
-      sid    = "ManageEIPNetworkInterface"
+      sid    = "ManageEIPNetworkInterface${replace(statement.key, "-", "")}"
       effect = "Allow"
       actions = [
         "ec2:AssociateAddress",
@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "main" {
       condition {
         test     = "StringLike"
         variable = "ec2:ResourceTag/Name"
-        values   = ["${local.name}-${local.region}*"]
+        values   = ["${local.name}-${statement.key}"]
       }
     }
   }

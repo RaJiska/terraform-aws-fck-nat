@@ -36,8 +36,6 @@ data "aws_ami" "main" {
   }
 }
 
-data "aws_default_tags" "current" {}
-
 data "aws_arn" "ssm_param" {
   count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn != null ? 1 : 0
 

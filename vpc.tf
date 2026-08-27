@@ -133,7 +133,7 @@ resource "aws_network_interface" "main" {
   source_dest_check  = false
   ipv6_address_count = var.use_nat64 ? 1 : null
 
-  tags = merge(local.common_tags,{ Name = "${local.name}-${each.key}" })
+  tags = merge(local.common_tags, { Name = "${local.name}-${each.key}" })
 }
 
 resource "aws_route" "main" {

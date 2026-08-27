@@ -8,12 +8,6 @@ variable "env" {
   type        = string
 }
 
-variable "region" {
-  description = "Region in which to create resources, defaults to provider region if not set"
-  type        = string
-  default     = null
-}
-
 locals {
   is_arm             = can(regex("[a-zA-Z]+\\d+g[a-z]*\\..+", var.instance_type))
   ami_id             = var.ami_id != null ? var.ami_id : data.aws_ami.main[0].id

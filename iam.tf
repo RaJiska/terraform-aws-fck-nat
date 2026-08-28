@@ -1,8 +1,8 @@
 resource "aws_iam_instance_profile" "main" {
-  name = local.name
+  name = local.iam_name
   role = aws_iam_role.main.name
 
-  tags = merge(local.common_tags, { Name = local.name })
+  tags = merge(local.common_tags, { Name = local.iam_name })
 }
 
 data "aws_iam_policy_document" "main" {
@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "main" {
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${data.aws_caller_identity.current.account_id}:elastic-ip/${statement.value}",
+        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${local.account_id}:elastic-ip/${statement.value}",
       ]
     }
   }
@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "main" {
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${local.account_id}:network-interface/*"
       ]
       condition {
         test     = "StringLike"
@@ -116,9 +116,9 @@ data "aws_iam_policy_document" "main" {
 }
 
 resource "aws_iam_policy" "main" {
-  name   = local.name
+  name   = local.iam_name
   policy = data.aws_iam_policy_document.main.json
-  tags   = merge(local.common_tags, { Name = local.name })
+  tags   = merge(local.common_tags, { Name = local.iam_name })
 }
 
 data "aws_iam_policy_document" "instance_assume_role_policy" {
@@ -133,10 +133,10 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
 }
 
 resource "aws_iam_role" "main" {
-  name                 = local.name
+  name                 = local.iam_name
   assume_role_policy   = data.aws_iam_policy_document.instance_assume_role_policy.json
   permissions_boundary = var.permissions_boundary_arn
-  tags                 = merge(local.common_tags, { Name = local.name })
+  tags                 = merge(local.common_tags, { Name = local.iam_name })
 }
 
 resource "aws_iam_role_policy_attachment" "main" {

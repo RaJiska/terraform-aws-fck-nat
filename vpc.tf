@@ -48,27 +48,27 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_subnet" "public" {
-  count = length(local.public_subnets)
+  for_each = local.public_subnet_cidrs
 
   vpc_id            = aws_vpc.current.id
-  cidr_block        = local.public_subnets[count.index]
-  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, count.index) : null
-  availability_zone = data.aws_availability_zones.available.names[count.index]
+  cidr_block        = each.value
+  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, index(local.azs, each.key)) : null
+  availability_zone = each.key
 
 
   tags = merge(
     local.common_tags,
     tomap({
-      "Name"         = "${local.vpc_name}-public${count.index}"
+      "Name"         = "${local.vpc_name}-public${index(local.azs, each.key)}"
       "network-type" = "public"
     })
   )
 }
 
 resource "aws_route_table_association" "public" {
-  count = length(aws_subnet.public[*].id)
+  for_each = aws_subnet.public
 
-  subnet_id      = aws_subnet.public[count.index].id
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
 }
 
@@ -79,42 +79,42 @@ resource "aws_route_table_association" "public" {
 ##########################
 
 resource "aws_route_table" "private" {
-  count = length(local.private_subnets)
+  for_each = local.private_subnet_cidrs
 
   vpc_id = aws_vpc.current.id
 
   tags = merge(
     local.common_tags,
     tomap({
-      "Name"         = "${local.vpc_name}-private${count.index}"
+      "Name"         = "${local.vpc_name}-private${index(local.azs, each.key)}"
       "network-type" = "private"
     })
   )
 }
 
 resource "aws_subnet" "private" {
-  count = length(local.private_subnets)
+  for_each = local.private_subnet_cidrs
 
   vpc_id            = aws_vpc.current.id
-  cidr_block        = local.private_subnets[count.index]
-  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, 100 + count.index) : null
-  availability_zone = data.aws_availability_zones.available.names[count.index]
+  cidr_block        = each.value
+  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, 100 + index(local.azs, each.key)) : null
+  availability_zone = each.key
 
 
   tags = merge(
     local.common_tags,
     tomap({
-      "Name"         = "${local.vpc_name}-private${count.index}"
+      "Name"         = "${local.vpc_name}-private${index(local.azs, each.key)}"
       "network-type" = "private"
     })
   )
 }
 
 resource "aws_route_table_association" "private" {
-  count = length(aws_subnet.private[*].id)
+  for_each = aws_subnet.private
 
-  subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private[count.index].id
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.private[each.key].id
 }
 
 

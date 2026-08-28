@@ -41,9 +41,9 @@ variable "eip_allocation_ids" {
 
   validation {
     condition = alltrue([
-      for az in local.asg_azs : contains(keys(var.eip_allocation_ids), az)
+      for az in local.azs : contains(keys(var.eip_allocation_ids), az)
     ]) || length(var.eip_allocation_ids) == 0
-    error_message = "eip_allocation_ids must either be empty, or contain an entry for every AZ used by this module (${join(", ", local.asg_azs)})."
+    error_message = "eip_allocation_ids must either be empty, or contain an entry for every AZ used by this module (${join(", ", local.azs)})."
   }
 }
 
@@ -125,9 +125,6 @@ variable "cloud_init_parts" {
   default = []
 }
 
-
-
-
 variable "enable_health_alarms" {
   description = "Whether to create CloudWatch alarms for NAT instance ASG health (one per AZ, alarming when the ASG has 0 in-service instances)"
   type        = bool
@@ -147,13 +144,10 @@ variable "alarm_email_addresses" {
 }
 
 locals {
-  # AZs actually used for subnets in vpc.tf
-  asg_azs = slice(data.aws_availability_zones.available.names, 0, length(aws_subnet.public))
-
   # Public subnets (for ASG/instance placement), keyed by AZ
-  asg_az_subnets = { for idx, az in local.asg_azs : az => aws_subnet.public[idx].id }
+  asg_az_subnets = { for az, s in aws_subnet.public : az => s.id }
 
   # Private subnets and their route tables (for the static internal ENI), keyed by AZ
-  private_az_subnets      = { for idx, az in local.asg_azs : az => aws_subnet.private[idx].id }
-  private_az_route_tables = { for idx, az in local.asg_azs : az => aws_route_table.private[idx].id }
+  private_az_subnets      = { for az, s in aws_subnet.private : az => s.id }
+  private_az_route_tables = { for az, rt in aws_route_table.private : az => rt.id }
 }

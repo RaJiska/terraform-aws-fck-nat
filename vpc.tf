@@ -125,7 +125,7 @@ resource "aws_route_table_association" "private" {
 resource "aws_network_interface" "main" {
   for_each = local.private_az_subnets
 
-  region = local.region
+  # Region is determined by the configured AWS provider
 
   description        = "${local.name} static private ENI (${each.key})"
   subnet_id          = each.value

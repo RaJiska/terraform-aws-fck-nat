@@ -22,7 +22,7 @@ locals {
   cidr_split         = flatten(cidrsubnets(var.cidr_block, 3, 3, 3, 4, 4, 4))
   private_subnets    = slice(local.cidr_split, 0, 3)
   public_subnets     = slice(local.cidr_split, 3, 6)
-  vpc_flow_logs_name = "${local.vpc_name}-flow-logs-${local.region}"
+  vpc_flow_logs_name = "${local.vpc_name}-flow-logs-${local.region_suffix}"
 
   # AZs used by this module, determined once from the CIDR split above (not
   # from any subnet resource), and used as the single source of truth for

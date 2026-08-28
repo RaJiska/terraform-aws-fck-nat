@@ -5,7 +5,7 @@ resource "aws_security_group" "main" {
 
   name        = local.name
   description = "Used in ${local.name} instances of fck-nat"
-  vpc_id      = aws_vpc.current.id
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     description      = "Unrestricted ingress from within VPC"

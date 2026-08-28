@@ -55,7 +55,7 @@ resource "aws_security_group" "jumpbox" {
 
   name        = local.jumpbox_name
   description = "${local.vpc_name} jumpbox instance security group"
-  vpc_id      = aws_vpc.current.id
+  vpc_id      = aws_vpc.main.id
 
   egress {
     from_port   = 0

@@ -144,7 +144,7 @@ resource "aws_flow_log" "main" {
   traffic_type             = "REJECT" # only reject traffic, reduces volume/cost vs ALL
   max_aggregation_interval = 600      # 10 minutes, reduces delivery frequency/cost vs 60s
 
-  vpc_id = aws_vpc.current.id
+  vpc_id = aws_vpc.main.id
 
   destination_options {
     file_format                = "parquet"

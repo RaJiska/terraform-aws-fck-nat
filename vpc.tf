@@ -2,7 +2,7 @@
 # VPC #
 #######
 
-resource "aws_vpc" "current" {
+resource "aws_vpc" "main" {
   cidr_block                       = var.cidr_block
   enable_dns_support               = true
   enable_dns_hostnames             = true
@@ -18,7 +18,7 @@ resource "aws_vpc" "current" {
 #########################
 
 resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.current.id
+  vpc_id = aws_vpc.main.id
 
   tags = merge(
     local.common_tags,
@@ -30,7 +30,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.current.id
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -50,7 +50,7 @@ resource "aws_route_table" "public" {
 resource "aws_subnet" "public" {
   for_each = local.public_subnet_cidrs
 
-  vpc_id            = aws_vpc.current.id
+  vpc_id            = aws_vpc.main.id
   cidr_block        = each.value
   ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, index(local.azs, each.key)) : null
   availability_zone = each.key
@@ -81,7 +81,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_route_table" "private" {
   for_each = local.private_subnet_cidrs
 
-  vpc_id = aws_vpc.current.id
+  vpc_id = aws_vpc.main.id
 
   tags = merge(
     local.common_tags,
@@ -95,7 +95,7 @@ resource "aws_route_table" "private" {
 resource "aws_subnet" "private" {
   for_each = local.private_subnet_cidrs
 
-  vpc_id            = aws_vpc.current.id
+  vpc_id            = aws_vpc.main.id
   cidr_block        = each.value
   ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, 100 + index(local.azs, each.key)) : null
   availability_zone = each.key
@@ -125,7 +125,6 @@ resource "aws_route_table_association" "private" {
 resource "aws_network_interface" "main" {
   for_each = local.private_az_subnets
 
-  # Region is determined by the configured AWS provider
 
   description        = "${local.name} static private ENI (${each.key})"
   subnet_id          = each.value
@@ -139,7 +138,6 @@ resource "aws_network_interface" "main" {
 resource "aws_route" "main" {
   for_each = local.private_az_route_tables
 
-  # Region is determined by the configured AWS provider
 
   route_table_id         = each.value
   destination_cidr_block = "0.0.0.0/0"
@@ -159,7 +157,6 @@ resource "aws_route" "main_ipv6" {
 resource "aws_ssm_parameter" "cloudwatch_agent_config" {
   count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn == null ? 1 : 0
 
-  # Region is determined by the configured AWS provider
 
   name   = "${local.name}-cloudwatch-agent-config"
   key_id = var.kms_key_id

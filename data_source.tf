@@ -10,7 +10,7 @@ data "aws_availability_zones" "available" {
 data "aws_ami" "main" {
   count = var.ami_id != null ? 0 : 1
 
-  region = local.region
+  # Region is determined by the configured AWS provider
 
   most_recent = true
   owners      = ["568608671756"]

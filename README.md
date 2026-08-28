@@ -43,6 +43,9 @@ module "fck-nat" {
 |------|------|
 | [aws_autoscaling_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
 | [aws_cloudwatch_metric_alarm.nat_instance_down](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_flow_log.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/flow_log) | resource |
+| [aws_glue_catalog_database.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_catalog_database) | resource |
+| [aws_glue_catalog_table.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_catalog_table) | resource |
 | [aws_iam_instance_profile.jumpbox](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
 | [aws_iam_instance_profile.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
 | [aws_iam_policy.jumpbox](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -61,6 +64,13 @@ module "fck-nat" {
 | [aws_route_table.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
 | [aws_route_table_association.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
 | [aws_route_table_association.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_s3_bucket.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_lifecycle_configuration.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
+| [aws_s3_bucket_ownership_controls.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
+| [aws_s3_bucket_policy.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
+| [aws_s3_bucket_public_access_block.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
+| [aws_s3_bucket_server_side_encryption_configuration.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
+| [aws_s3_bucket_versioning.flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
 | [aws_security_group.jumpbox](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_sns_topic.alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
@@ -98,11 +108,13 @@ module "fck-nat" {
 | <a name="input_credit_specification"></a> [credit\_specification](#input\_credit\_specification) | Customize the credit specification of the instance | `string` | `null` | no |
 | <a name="input_ebs_root_volume_size"></a> [ebs\_root\_volume\_size](#input\_ebs\_root\_volume\_size) | Size of the EBS root volume in GB | `number` | `8` | no |
 | <a name="input_eip_allocation_ids"></a> [eip\_allocation\_ids](#input\_eip\_allocation\_ids) | Map of Availability Zone name to EIP allocation ID to use for the NAT instance in that AZ. Automatically assigns a public IP if not provided. Must contain an entry for every AZ used by this module when non-empty. | `map(string)` | `{}` | no |
+| <a name="input_enable_athena"></a> [enable\_athena](#input\_enable\_athena) | Create a Glue Catalog database/table for querying VPC flow logs (parquet, hive-partitioned) via Amazon Athena | `bool` | `false` | no |
 | <a name="input_enable_health_alarms"></a> [enable\_health\_alarms](#input\_enable\_health\_alarms) | Whether to create CloudWatch alarms for NAT instance ASG health (one per AZ, alarming when the ASG has 0 in-service instances) | `bool` | `true` | no |
 | <a name="input_enable_jumpbox_instance"></a> [enable\_jumpbox\_instance](#input\_enable\_jumpbox\_instance) | Creates jumpbox instance to access resources in the VPC (SSM only) | `bool` | `false` | no |
 | <a name="input_env"></a> [env](#input\_env) | environment name | `string` | n/a | yes |
 | <a name="input_ha_additional_instance_types"></a> [ha\_additional\_instance\_types](#input\_ha\_additional\_instance\_types) | List of additional instance types to pass to the ASG, helpful when using spot instances with low availabiltiy | `list(string)` | `[]` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the NAT instance | `string` | `"t4g.micro"` | no |
+| <a name="input_jumpbox_use_spot_instance"></a> [jumpbox\_use\_spot\_instance](#input\_jumpbox\_use\_spot\_instance) | Whether to launch the jumpbox as a spot instance instead of on-demand. Recommended for cost savings since the jumpbox is a non-critical, easily-replaceable debug/access instance. | `bool` | `true` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | Will use the provided KMS key ID to encrypt the EBS volume. Uses the default KMS key if none provided | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name used for resources created within the module | `string` | n/a | yes |
 | <a name="input_permissions_boundary_arn"></a> [permissions\_boundary\_arn](#input\_permissions\_boundary\_arn) | ARN of the IAM policy to use as a permissions boundary for the NAT instance IAM role | `string` | `null` | no |

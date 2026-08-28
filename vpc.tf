@@ -159,7 +159,7 @@ resource "aws_route" "main_ipv6" {
 resource "aws_ssm_parameter" "cloudwatch_agent_config" {
   count = var.use_cloudwatch_agent && var.cloudwatch_agent_configuration_param_arn == null ? 1 : 0
 
-  region = local.region
+  # Region is determined by the configured AWS provider
 
   name   = "${local.name}-cloudwatch-agent-config"
   key_id = var.kms_key_id

@@ -18,7 +18,7 @@ variable "enable_athena" {
 
 locals {
 
-  # spliting the user provided CIDR block into three /19 private subnets and three /20 public subnets
+  # splitting the user provided CIDR block into three /19 private subnets and three /20 public subnets
   cidr_split         = flatten(cidrsubnets(var.cidr_block, 3, 3, 3, 4, 4, 4))
   private_subnets    = slice(local.cidr_split, 0, 3)
   public_subnets     = slice(local.cidr_split, 3, 6)

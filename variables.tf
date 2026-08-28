@@ -1,11 +1,21 @@
 variable "name" {
   description = "Name used for resources created within the module"
   type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]{0,13}[a-z0-9])?$", var.name))
+    error_message = "name must be 1-15 characters, lowercase alphanumeric and hyphens only, and cannot start or end with a hyphen."
+  }
 }
 
 variable "env" {
   description = "environment name"
   type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]{0,13}[a-z0-9])?$", var.env))
+    error_message = "env must be 1-15 characters, lowercase alphanumeric and hyphens only, and cannot start or end with a hyphen."
+  }
 }
 
 locals {
@@ -17,6 +27,9 @@ locals {
   vpc_name           = "${var.env}-${var.name}"
   name               = "${local.vpc_name}-ngw"
   region             = data.aws_region.current.region
+  account_id         = data.aws_caller_identity.current.account_id
+  region_suffix      = replace(local.region, "-", "")
+  iam_name           = "${local.name}-${local.region_suffix}"
 
 
   common_tags = {

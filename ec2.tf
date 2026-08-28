@@ -1,7 +1,7 @@
 resource "aws_security_group" "main" {
   #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
   #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
-  region = local.region
+  # Region is determined by the configured AWS provider
 
   name        = local.name
   description = "Used in ${local.name} instances of fck-nat"

@@ -28,7 +28,7 @@ resource "aws_sns_topic_subscription" "alarm_email" {
 resource "aws_cloudwatch_metric_alarm" "nat_instance_down" {
   for_each = var.enable_health_alarms ? local.asg_az_subnets : {}
 
-  region = local.region
+  # Region is determined by the configured AWS provider
 
   alarm_name          = "${local.name}-${each.key}-down"
   alarm_description   = "Triggers when the fck-nat instance in ${each.key} has no in-service instances"

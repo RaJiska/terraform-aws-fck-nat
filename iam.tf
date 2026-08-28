@@ -1,8 +1,8 @@
 resource "aws_iam_instance_profile" "main" {
-  name = var.name
+  name = local.iam_name
   role = aws_iam_role.main.name
 
-  tags = var.tags
+  tags = merge(local.common_tags, { Name = local.iam_name })
 }
 
 data "aws_iam_policy_document" "main" {
@@ -17,45 +17,45 @@ data "aws_iam_policy_document" "main" {
       "*",
     ]
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "ec2:ResourceTag/Name"
-      values   = [local.instance_name]
+      values   = ["${local.name}-${local.region}*"]
     }
   }
 
   dynamic "statement" {
-    for_each = length(var.eip_allocation_ids) != 0 ? ["x"] : []
+    for_each = var.eip_allocation_ids
 
     content {
-      sid    = "ManageEIPAllocation"
+      sid    = "ManageEIPAllocation${replace(statement.key, "-", "")}"
       effect = "Allow"
       actions = [
         "ec2:AssociateAddress",
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:elastic-ip/${var.eip_allocation_ids[0]}",
+        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${local.account_id}:elastic-ip/${statement.value}",
       ]
     }
   }
 
   dynamic "statement" {
-    for_each = length(var.eip_allocation_ids) != 0 ? ["x"] : []
+    for_each = var.eip_allocation_ids
 
     content {
-      sid    = "ManageEIPNetworkInterface"
+      sid    = "ManageEIPNetworkInterface${replace(statement.key, "-", "")}"
       effect = "Allow"
       actions = [
         "ec2:AssociateAddress",
         "ec2:DisassociateAddress",
       ]
       resources = [
-        "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+        "arn:${data.aws_partition.current.partition}:ec2:${local.region}:${local.account_id}:network-interface/*"
       ]
       condition {
-        test     = "StringEquals"
+        test     = "StringLike"
         variable = "ec2:ResourceTag/Name"
-        values   = [local.instance_name]
+        values   = ["${local.name}-${statement.key}"]
       }
     }
   }
@@ -116,9 +116,9 @@ data "aws_iam_policy_document" "main" {
 }
 
 resource "aws_iam_policy" "main" {
-  name   = var.name
+  name   = local.iam_name
   policy = data.aws_iam_policy_document.main.json
-  tags   = var.tags
+  tags   = merge(local.common_tags, { Name = local.iam_name })
 }
 
 data "aws_iam_policy_document" "instance_assume_role_policy" {
@@ -133,10 +133,10 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
 }
 
 resource "aws_iam_role" "main" {
-  name                 = var.name
+  name                 = local.iam_name
   assume_role_policy   = data.aws_iam_policy_document.instance_assume_role_policy.json
   permissions_boundary = var.permissions_boundary_arn
-  tags                 = var.tags
+  tags                 = merge(local.common_tags, { Name = local.iam_name })
 }
 
 resource "aws_iam_role_policy_attachment" "main" {

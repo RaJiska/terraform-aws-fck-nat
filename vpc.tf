@@ -139,7 +139,7 @@ resource "aws_network_interface" "main" {
 resource "aws_route" "main" {
   for_each = local.private_az_route_tables
 
-  region = local.region
+  # Region is determined by the configured AWS provider
 
   route_table_id         = each.value
   destination_cidr_block = "0.0.0.0/0"

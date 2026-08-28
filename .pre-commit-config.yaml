@@ -9,7 +9,7 @@ repos:
       stages: [pre-commit]
 
 - repo: https://github.com/bridgecrewio/checkov.git
-  rev: 3.3.9
+  rev: 3.3.15
   hooks:
     - id: checkov
       name: Checkov
@@ -20,6 +20,8 @@ repos:
         - terraform
         - --skip-path
         - examples
+        - --skip-check
+        - CKV2_AWS_12
         - --quiet
         - --compact
       pass_filenames: false

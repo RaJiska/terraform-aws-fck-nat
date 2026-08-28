@@ -113,6 +113,9 @@ provider "aws" {
     iam         = "http://localhost:${FLOCI_PORT}"
     sts         = "http://localhost:${FLOCI_PORT}"
     ssm         = "http://localhost:${FLOCI_PORT}"
+    s3          = "http://localhost:${FLOCI_PORT}"
+    kms         = "http://localhost:${FLOCI_PORT}"
+    glue        = "http://localhost:${FLOCI_PORT}"
   }
 }
 EOF

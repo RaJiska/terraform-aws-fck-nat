@@ -62,7 +62,7 @@ variable "credit_specification" {
 variable "use_spot_instances" {
   description = "Whether or not to use spot instances for running the NAT instance"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "use_cloudwatch_agent" {

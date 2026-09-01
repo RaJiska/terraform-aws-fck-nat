@@ -152,6 +152,13 @@ resource "aws_flow_log" "main" {
     per_hour_partition         = true
   }
 
+  depends_on = [
+    aws_s3_bucket_policy.flow_logs,
+    aws_s3_bucket_public_access_block.flow_logs,
+    aws_s3_bucket_ownership_controls.flow_logs,
+  ]
+
+
   tags = merge(local.common_tags, { Name = local.vpc_flow_logs_name })
 }
 

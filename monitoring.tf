@@ -42,7 +42,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_instance_down" {
   treat_missing_data  = "breaching"
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.main[each.key].name
+    AutoScalingGroupName = aws_autoscaling_group.nat_instance[each.key].name
   }
 
   alarm_actions = [local.alarm_topic_arn]

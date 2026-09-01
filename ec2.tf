@@ -1,4 +1,4 @@
-resource "aws_security_group" "main" {
+resource "aws_security_group" "nat_instance" {
   #checkov:skip=CKV_AWS_24:False positive, ingress CIDR blocks on port 22 default to "[]"
   #checkov:skip=CKV_AWS_382:Security group is used for NAT instance, intended to egress to the world
   # Region is determined by the configured AWS provider
@@ -12,8 +12,8 @@ resource "aws_security_group" "main" {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
-    cidr_blocks      = [aws_vpc.current.cidr_block]
-    ipv6_cidr_blocks = var.use_nat64 ? [aws_vpc.current.ipv6_cidr_block] : null
+    cidr_blocks      = [aws_vpc.main.cidr_block]
+    ipv6_cidr_blocks = var.use_nat64 ? [aws_vpc.main.ipv6_cidr_block] : null
   }
 
   egress {
@@ -29,7 +29,7 @@ resource "aws_security_group" "main" {
 }
 
 
-data "cloudinit_config" "this" {
+data "cloudinit_config" "nat_instance" {
   for_each = local.private_az_subnets
 
   gzip          = true
@@ -55,7 +55,7 @@ data "cloudinit_config" "this" {
   }
 }
 
-resource "aws_launch_template" "main" {
+resource "aws_launch_template" "nat_instance" {
   for_each = local.private_az_subnets
 
   #checkov:skip=CKV_AWS_88:NAT instances must have a public IP.
@@ -77,7 +77,7 @@ resource "aws_launch_template" "main" {
   }
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.main.name
+    name = aws_iam_instance_profile.nat_instance.name
   }
 
   network_interfaces {
@@ -97,7 +97,7 @@ resource "aws_launch_template" "main" {
     }
   }
 
-  user_data = data.cloudinit_config.this[each.key].rendered
+  user_data = data.cloudinit_config.nat_instance[each.key].rendered
 
   credit_specification {
     cpu_credits = var.credit_specification
@@ -121,12 +121,12 @@ resource "aws_launch_template" "main" {
 
 # Needed to ensure the IAM instance profile is fully propagated before creating the ASG
 resource "time_sleep" "wait_for_iam" {
-  depends_on      = [aws_iam_instance_profile.main]
+  depends_on      = [aws_iam_instance_profile.nat_instance]
   create_duration = "15s"
 }
 
 
-resource "aws_autoscaling_group" "main" {
+resource "aws_autoscaling_group" "nat_instance" {
   for_each = local.asg_az_subnets
 
   region = local.region
@@ -147,8 +147,8 @@ resource "aws_autoscaling_group" "main" {
 
     launch_template {
       launch_template_specification {
-        launch_template_id = aws_launch_template.main[each.key].id
-        version            = aws_launch_template.main[each.key].latest_version
+        launch_template_id = aws_launch_template.nat_instance[each.key].id
+        version            = aws_launch_template.nat_instance[each.key].latest_version
       }
 
       override {

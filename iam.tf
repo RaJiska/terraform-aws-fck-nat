@@ -1,11 +1,40 @@
-resource "aws_iam_instance_profile" "main" {
+data "aws_iam_policy_document" "instance_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.${data.aws_partition.current.dns_suffix}"]
+    }
+    effect = "Allow"
+  }
+}
+
+resource "aws_iam_role" "nat_instance" {
+  name                 = local.iam_name
+  assume_role_policy   = data.aws_iam_policy_document.instance_assume_role_policy.json
+  permissions_boundary = var.permissions_boundary_arn
+  tags                 = merge(local.common_tags, { Name = local.iam_name })
+}
+
+resource "aws_iam_policy" "nat_instance" {
+  name   = local.iam_name
+  policy = data.aws_iam_policy_document.nat_instance.json
+  tags   = merge(local.common_tags, { Name = local.iam_name })
+}
+
+resource "aws_iam_role_policy_attachment" "nat_instance" {
+  role       = aws_iam_role.nat_instance.name
+  policy_arn = aws_iam_policy.nat_instance.arn
+}
+
+resource "aws_iam_instance_profile" "nat_instance" {
   name = local.iam_name
-  role = aws_iam_role.main.name
+  role = aws_iam_role.nat_instance.name
 
   tags = merge(local.common_tags, { Name = local.iam_name })
 }
 
-data "aws_iam_policy_document" "main" {
+data "aws_iam_policy_document" "nat_instance" {
   statement {
     sid    = "ManageNetworkInterface"
     effect = "Allow"
@@ -115,31 +144,4 @@ data "aws_iam_policy_document" "main" {
   }
 }
 
-resource "aws_iam_policy" "main" {
-  name   = local.iam_name
-  policy = data.aws_iam_policy_document.main.json
-  tags   = merge(local.common_tags, { Name = local.iam_name })
-}
 
-data "aws_iam_policy_document" "instance_assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.${data.aws_partition.current.dns_suffix}"]
-    }
-    effect = "Allow"
-  }
-}
-
-resource "aws_iam_role" "main" {
-  name                 = local.iam_name
-  assume_role_policy   = data.aws_iam_policy_document.instance_assume_role_policy.json
-  permissions_boundary = var.permissions_boundary_arn
-  tags                 = merge(local.common_tags, { Name = local.iam_name })
-}
-
-resource "aws_iam_role_policy_attachment" "main" {
-  role       = aws_iam_role.main.name
-  policy_arn = aws_iam_policy.main.arn
-}

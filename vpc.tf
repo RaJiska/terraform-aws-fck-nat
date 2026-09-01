@@ -52,7 +52,7 @@ resource "aws_subnet" "public" {
 
   vpc_id            = aws_vpc.main.id
   cidr_block        = each.value
-  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, index(local.azs, each.key)) : null
+  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, index(local.azs, each.key)) : null
   availability_zone = each.key
 
 
@@ -97,7 +97,7 @@ resource "aws_subnet" "private" {
 
   vpc_id            = aws_vpc.main.id
   cidr_block        = each.value
-  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.current.ipv6_cidr_block, 8, 100 + index(local.azs, each.key)) : null
+  ipv6_cidr_block   = var.use_nat64 ? cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 100 + index(local.azs, each.key)) : null
   availability_zone = each.key
 
 
@@ -128,7 +128,7 @@ resource "aws_network_interface" "main" {
 
   description        = "${local.name} static private ENI (${each.key})"
   subnet_id          = each.value
-  security_groups    = [aws_security_group.main.id]
+  security_groups    = [aws_security_group.nat_instance.id]
   source_dest_check  = false
   ipv6_address_count = var.use_nat64 ? 1 : null
 

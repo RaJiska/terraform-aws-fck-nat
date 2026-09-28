@@ -35,7 +35,7 @@ resource "aws_security_group" "main" {
     to_port          = 0
     protocol         = "-1"
     cidr_blocks      = data.aws_vpc.main.cidr_block_associations[*].cidr_block
-    ipv6_cidr_blocks = var.use_nat64 ? ["${data.aws_vpc.main.ipv6_cidr_block}"] : null
+    ipv6_cidr_blocks = var.use_nat64 ? data.aws_vpc.main.ipv6_cidr_block_associations[*].ipv6_cidr_block : null
   }
 
   dynamic "ingress" {

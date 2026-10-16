@@ -108,6 +108,12 @@ variable "eip_allocation_ids" {
   default     = []
 }
 
+variable "associate_public_ip_address" {
+  description = "Whether to associate an ephemeral public IP address with the NAT instance's network interface. Set to false for NAT instances in subnets that do not route to an internet gateway (e.g. NAT towards a transit gateway); the instance then needs another path (e.g. VPC endpoints) for SSM/CloudWatch."
+  type        = bool
+  default     = true
+}
+
 variable "attach_ssm_policy" {
   description = "Whether to attach the minimum required IAM permissions to connect to the instance via SSM."
   type        = bool

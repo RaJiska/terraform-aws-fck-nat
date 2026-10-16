@@ -86,7 +86,7 @@ resource "aws_launch_template" "main" {
   network_interfaces {
     description                 = "${var.name} ephemeral public ENI"
     subnet_id                   = var.subnet_id
-    associate_public_ip_address = true
+    associate_public_ip_address = var.associate_public_ip_address
     security_groups             = local.security_groups
     ipv6_address_count          = var.use_nat64 ? 1 : null
   }
